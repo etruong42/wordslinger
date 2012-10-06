@@ -1,0 +1,68 @@
+<html>
+<head>
+	<script src='assets/js/vendor/modernizr-1.6.min.js'></script>
+	<script src='assets/js/vendor/jquery-1.5.1.min.js'></script>
+	<script src='assets/js/vendor/underscore.js'></script>
+	<script src='assets/js/vendor/backbone.js'></script>
+	<script src='assets/js/models/Tile.js'></script>
+	<script src='assets/js/models/Hand.js'></script>
+	<script src='assets/js/models/Board.js'></script>
+	<script type='text/template' id='tile-template'>
+		<span class='tile-letter'><%= letter %></span>
+		<span class='tile-points'><%= points %></span>
+	</script>
+	<link rel='stylesheet' type='text/css' href='assets/css/main.css' />
+
+	<script type='text/template' id='hand-template'>
+		<div class='hand'>
+		<% _.each(tiles, function(tile) { %>
+			<div class='tile'>
+				<div class='tile-letter'><%= tile.toJSON().letter %></div>
+				<div class='tile-points'><%= tile.toJSON().points %></div>
+			</div>
+		<% }); %>
+		</div>
+	</script>
+
+	<script type='text/template' id='boardtile-template'>
+		<ul class='tiles'>
+		<% _.each(tiles, function(tile) { %>
+			<li class='tile'>
+				<span class='tile-letter'><%= tile.toJSON().letter %></span>
+				<span class='tile-points'><%= tile.toJSON().points %></span>
+			</li>
+		<% }); %>
+		</ul>
+	</script>
+</head>
+<body>
+	<div id='container'>
+		<div id='board1' class='board'></div>
+		<div id='hand1' class='hand'></div>
+		<div id='hand2' class='hand'></div>
+	</div>
+
+	<script>
+		var h = new Hand();
+		var hv = new HandView({collection:h});
+		h.add(new Tile({letter:'p', points:4}));
+		h.add(new Tile({letter:'q', points:8}));
+		hv.el = $('#hand1');
+		hv.render();
+
+		var b = new Board({$el : $("#board1")});
+
+		var bv = new BoardView({model:b, height: 50, width: 50});
+
+		bv.render();	
+
+		var h1 = new Hand();
+		var hv1 = new HandView({collection:h});
+		h1.add(new Tile({letter:'p', points:4}));
+		h1.add(new Tile({letter:'q', points:8}));
+		hv1.el = $('#hand2');
+		hv1.render();
+	</script>
+</body>
+
+</html>

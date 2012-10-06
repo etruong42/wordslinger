@@ -1,0 +1,46 @@
+.tile {
+	width: 35px;
+	height: 35px;
+	border: solid gray thin;
+	position: relative;
+	display: inline-block;
+	font-size: 18px;
+}
+
+.tile-letter {
+	color: red;
+	width: 10px;
+	height: 10px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -5px;
+	margin-top: -11px;
+}
+
+.tile-points {
+	font-size: 0.6em;
+	position: absolute;
+	bottom: 0;
+	right: 1;
+}
+
+.points-space {
+	float:right;
+	height: 80%;
+}
+
+.hand {
+	font-size: 2px;
+}
+
+.selected {
+	/*raise and add shadow*/
+}
+
+.board{
+	height: 700px;
+	width: 700px;
+	border: solid gray thin;
+	margin: 10px 5px 10px 5px;
+}
