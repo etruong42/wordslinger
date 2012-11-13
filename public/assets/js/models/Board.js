@@ -36,7 +36,9 @@
  		generateRow: function(length) {
  			var t = [];
  			for(var i = 0; i < length; i++) {
- 				t.push(new Tile());
+ 				var newTileSlotView = new TileSlotView({board: this.model});
+				newTileSlotView.on("wordslinger:tileplace", newTileSlotView.cleanTiles, newTileSlotView)
+ 				this.$el.append(newTileSlotView.el);
  			}
  		},		
 
@@ -45,13 +47,7 @@
 			this.height = options.height;
 			this.$el = options.$el;
 			this.tiles = [];
-			for(var i = 0; i< this.height; i++)
-			{
-				this.tiles[i] = this.generateRow(this.width);
-			}
-
-			this.collection = options.collection;
-			this.tileslots = options.tileslots;
+			this.generateRow(this.width);
 
 			//feed tileslots and tiles
 			//in turn, define their container

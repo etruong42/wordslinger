@@ -1,26 +1,51 @@
-(function($) {
-	window.Hand = Backbone.Collection.extend({
-		model: Tile
-	});
+window.Hand = Backbone.Collection.extend({
+	model: Tile
 
-	window.HandView = Backbone.View.extend({
-		tagName: 'div',
-		className: 'hand',
+	//on push tile, add event to TileView
+});
 
-		//bind click of tiles in collection
-			//to toggle selected
-			//trigger tileSelected (tile)
-		initialize: function() {
-			this.template = _.template($('#hand-template').html());
-		},
+window.HandView = Backbone.View.extend({
+	tagName: 'div',
+	className: 'hand',
 
-		render: function(){
-			var data = {
-				tiles: this.collection.models
-			};
-			console.ethan = this.template(data);
-			$(this.el).html(this.template(data));
-			return this;
+	//bind click of tiles in collection
+		//to toggle selected
+		//trigger tileSelected (tile)
+	initialize: function(options) {
+		
+	},
+	events: {
+		"click .tile": "selectTile"
+	},
+
+	selectTile: function(evt) {
+		var curTile = $(evt.currentTarget);
+		if(curTile.hasClass("selected")) {
+			curTile.removeClass("selected");
+			this.selectedTile = null;
+			return;
 		}
-	});
-})(jQuery);
+		if(!curTile.hasClass("selected")) {
+			if(this.selectedTile){
+				this.selectedTile.removeClass("selected");
+			}
+			curTile.toggleClass("selected");
+			this.selectedTile = curTile;
+		}
+		
+	},
+
+	addTileView: function(tileView) {
+		this.el.append(tileView.el);
+		this.delegateEvents();
+	},
+
+	addTileElement: function(tileElement) {
+		this.el.append(tileElement);
+		this.delegateEvents();
+	},
+
+	render: function(){
+
+	}
+});

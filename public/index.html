@@ -3,37 +3,15 @@
 	<script src='assets/js/vendor/modernizr-1.6.min.js'></script>
 	<script src='assets/js/vendor/jquery-1.5.1.min.js'></script>
 	<script src='assets/js/vendor/underscore.js'></script>
+	<script src='assets/js/jst.js'></script>
 	<script src='assets/js/vendor/backbone.js'></script>
 	<script src='assets/js/models/Tile.js'></script>
 	<script src='assets/js/models/Hand.js'></script>
+	<script src='assets/js/models/TileSlot.js'></script>
 	<script src='assets/js/models/Board.js'></script>
-	<script type='text/template' id='tile-template'>
-		<span class='tile-letter'><%= letter %></span>
-		<span class='tile-points'><%= points %></span>
-	</script>
+	<script src='assets/js/app.js'></script>
+	<script src='assets/js/main.js'></script>
 	<link rel='stylesheet' type='text/css' href='assets/css/main.css' />
-
-	<script type='text/template' id='hand-template'>
-		<div class='hand'>
-		<% _.each(tiles, function(tile) { %>
-			<div class='tile'>
-				<div class='tile-letter'><%= tile.toJSON().letter %></div>
-				<div class='tile-points'><%= tile.toJSON().points %></div>
-			</div>
-		<% }); %>
-		</div>
-	</script>
-
-	<script type='text/template' id='boardtile-template'>
-		<ul class='tiles'>
-		<% _.each(tiles, function(tile) { %>
-			<li class='tile'>
-				<span class='tile-letter'><%= tile.toJSON().letter %></span>
-				<span class='tile-points'><%= tile.toJSON().points %></span>
-			</li>
-		<% }); %>
-		</ul>
-	</script>
 </head>
 <body>
 	<div id='container'>
@@ -45,21 +23,24 @@
 	<script>
 		var h = new Hand();
 		var hv = new HandView({collection:h});
-		h.add(new Tile({letter:'p', points:4}));
-		h.add(new Tile({letter:'q', points:8}));
 		hv.el = $('#hand1');
-		hv.render();
+		var t1 = new TileView({model: new Tile({letter:'k', points:7})})
+		var t = new TileView({model: new Tile({letter:'k', points:7})})
+		hv.addTileView(t);
+		hv.addTileView(new TileView({model: new Tile({letter:'q', points:10})}));
+		hv.addTileView(new TileView({model: new Tile({letter:'p', points:4})}));
+		hv.addTileView(new TileView({model: new Tile({letter:'a', points:1})}));
 
-		var b = new Board({$el : $("#board1")});
+		var b = new Board();
+		var ts = new TileSlotView({board: b});
+		b.activeHand = hv;
 
-		var bv = new BoardView({model:b, height: 50, width: 50});
+		var bv = new BoardView({model:b, height: 10, width: 30, $el : $("#board1")});
 
-		bv.render();	
+		bv.$el.append(ts.el);	
 
 		var h1 = new Hand();
 		var hv1 = new HandView({collection:h});
-		h1.add(new Tile({letter:'p', points:4}));
-		h1.add(new Tile({letter:'q', points:8}));
 		hv1.el = $('#hand2');
 		hv1.render();
 	</script>

@@ -7,6 +7,15 @@
 	font-size: 18px;
 }
 
+.tileSlot {
+	width: 35px;
+	height: 35px;
+	border: solid gray thin;
+	position: relative;
+	display: inline-block;
+	font-size: 18px;
+}
+
 .tile-letter {
 	color: red;
 	width: 10px;
@@ -31,11 +40,11 @@
 }
 
 .hand {
-	font-size: 2px;
+	
 }
 
 .selected {
-	/*raise and add shadow*/
+	border: solid red thin;
 }
 
 .board{

@@ -8,3 +8,12 @@
 
 //create TileSlots
 //initialize TileSlotsView with TileSlots
+
+window.wordslinger = function()
+{
+	this.start = function(){
+		var that = this;
+
+		
+	}
+};
