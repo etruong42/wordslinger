@@ -1,4 +1,4 @@
-(function($) {
+
 	window.Board = Backbone.Collection.extend({
 		// defaults {
 		// 	height: 0,
@@ -37,8 +37,21 @@
  			var t = [];
  			for(var i = 0; i < length; i++) {
  				var newTileSlotView = new TileSlotView({board: this.model});
-				newTileSlotView.on("wordslinger:tileplace", newTileSlotView.cleanTiles, newTileSlotView)
+				newTileSlotView.on("wordslinger:tileplace", newTileSlotView.cleanTiles);
+
  				this.$el.append(newTileSlotView.el);
+
+ 				newTileSlotView.$el.droppable({
+ 					tolerance: "pointer",
+					accept: ".tile",
+					//activeClass: "ui-state-hover",
+					//hoverClass: "ui-state-active",
+					drop: function(event, ui) {
+						newTileSlotView.add
+						ui.draggable.appendTo($(this));
+						ui.draggable.attr("style", null);
+					}
+				});
  			}
  		},		
 
@@ -55,4 +68,3 @@
 			//on collection added to, render added tiles onto board
 		}
 	});
-})(jQuery);

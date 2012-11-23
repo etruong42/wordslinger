@@ -48,7 +48,7 @@
 }
 
 .board{
-	height: 700px;
+	height: 100px;
 	width: 700px;
 	border: solid gray thin;
 	margin: 10px 5px 10px 5px;

@@ -12,12 +12,12 @@
 		//with higher z-value
 
 		cleanTiles: function(evt, evt2) {
-			console.log(evt);
-			console.log(evt2);
+			this.tile = null;
 		},
 
 		initialize: function(options) {
 			this.board = options.board;
+			_.extend(this, Backbone.Events);
 		},
 
 		
@@ -28,7 +28,13 @@
 
 		events: {
 			"click" : "placeTile",
-			"dblclick .active.tile" : "returnTile"
+			"dblclick .active.tile" : "returnTile",
+			"wordslinger:tileplace" : "cleanTiles",
+			"drop" : "placeDroppedTile"
+		},
+
+		placeDroppedTile: function(evt, ui) {
+
 		},
 
 		placeTile: function(evt) {

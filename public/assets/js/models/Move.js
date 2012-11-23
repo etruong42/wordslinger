@@ -1,4 +1,4 @@
-(function($){
+
 	window.Move = Backbone.Collection.extend({
 		orientation = 0, 
 		// 1 is vertical, 2 is horizontal, -1 is invalid, 0 is default
@@ -36,4 +36,3 @@
 			//check for any not on same y
 		}
 	});
-})(jQuery);

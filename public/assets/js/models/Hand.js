@@ -8,12 +8,6 @@ window.HandView = Backbone.View.extend({
 	tagName: 'div',
 	className: 'hand',
 
-	//bind click of tiles in collection
-		//to toggle selected
-		//trigger tileSelected (tile)
-	initialize: function(options) {
-		
-	},
 	events: {
 		"click .tile": "selectTile"
 	},
@@ -36,12 +30,12 @@ window.HandView = Backbone.View.extend({
 	},
 
 	addTileView: function(tileView) {
-		this.el.append(tileView.el);
+		this.$el.append(tileView.el);
 		this.delegateEvents();
 	},
 
 	addTileElement: function(tileElement) {
-		this.el.append(tileElement);
+		this.$el.append(tileElement);
 		this.delegateEvents();
 	},
 
