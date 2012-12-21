@@ -8,9 +8,13 @@
 
 	<script src='assets/js/vendor/backbone.js'></script>
 	<script src='assets/js/models/Tile.js'></script>
+	<script src='assets/js/models/HandSlot.js'></script>
 	<script src='assets/js/models/Hand.js'></script>
 	<script src='assets/js/models/TileSlot.js'></script>
 	<script src='assets/js/models/Board.js'></script>
+	<script src='assets/js/models/Grabbag.js'></script>
+	<script src='assets/js/models/Move.js'></script>
+	<script src='assets/js/models/WordslingerGame.js'></script>
 	<script src='assets/js/app.js'></script>
 	<script src='assets/js/main.js'></script>
 	<link rel='stylesheet' type='text/css' href='assets/css/main.css' />
@@ -18,41 +22,59 @@
 <body>
 	<div id='container'>
 		<div id='board1' class='board'></div>
-		<div id='hand1' class='hand'></div>
-		<div id='hand2' class='hand'></div>
+		<div class="playerPanel">
+			<div id='hand1' class='hand'></div>
+			<input type="button" class="go" value="Go" />
+		</div>
+		<div class="playerPanel">
+			<div id='hand2' class='hand'></div>
+			<input type="button" class="go" value="Go" />
+		</div>
 	</div>
 
 	<script>
+		var tileArray = [
+			{letter:"a", points:1, count:9},
+			{letter:"b", points:3, count:2},
+			{letter:"c", points:3, count:2},
+			{letter:"d", points:1, count:5},
+			{letter:"e", points:1, count:12},
+			{letter:"f", points:4, count:2},
+			{letter:"g", points:1, count:5},
+			{letter:"h", points:4, count:2},
+			{letter:"i", points:1, count:9},
+			{letter:"j", points:8, count:1},
+			{letter:"k", points:5, count:1},
+			{letter:"l", points:1, count:4},
+			{letter:"m", points:3, count:2},
+			{letter:"n", points:1, count:6},
+			{letter:"o", points:1, count:8},
+			{letter:"p", points:3, count:2},
+			{letter:"q", points:10, count:1},
+			{letter:"r", points:1, count:6},
+			{letter:"s", points:1, count:4},
+			{letter:"t", points:1, count:6},
+			{letter:"u", points:1, count:4},
+			{letter:"v", points:4, count:2},
+			{letter:"w", points:4, count:2},
+			{letter:"x", points:8, count:1},
+			{letter:"y", points:4, count:2},
+			{letter:"z", points:10, count:1},
+			{letter:"", points:0, count:2},
+		];
 		var h = new Hand();
-		var hv = new HandView({collection:h});
-		hv.$el = $('#hand1');
-		var t1 = new TileView({model: new Tile({letter:'k', points:7})})
-		var t = new TileView({model: new Tile({letter:'k', points:7})})
-		hv.addTileView(t);
-		hv.addTileView(new TileView({model: new Tile({letter:'q', points:10})}));
-		hv.addTileView(new TileView({model: new Tile({letter:'p', points:4})}));
-		hv.addTileView(new TileView({model: new Tile({letter:'a', points:1})}));
+		h.handView.$el = $('#hand1');
 
-		var b = new Board();
-		var ts = new TileSlotView({board: b});
-		b.activeHand = hv;
+		var h2 = new Hand();
+		h2.handView.$el = $('#hand2');
 
-		var bv = new BoardView({model:b, height: 10, width: 30, $el : $("#board1")});
+		var gb = new Grabbag();
+		gb.initTiles(tileArray);
+		var b = new Board({hands: [h, h2], grabbag: gb});
+		var bv = new BoardView({model:b, height: 15, width: 15, $el : $("#board1")});
+		var ws = new WordslingerGame({board: b, grabbag: gb})
 
-		bv.$el.append(ts.el);	
-
-		var h1 = new Hand();
-		var hv1 = new HandView({collection:h});
-		hv1.el = $('#hand2');
-		hv1.render();
-
-		$(function() {
-			//$( "#draggable" ).draggable({ snap: true });
-			$( ".tile" ).draggable({ snap: ".tileSlot", snapMode: "inner", revert: "invalid" });
-			//$( "#draggable3" ).draggable({ snap: ".ui-widget-header", snapMode: "outer" });
-			//$( "#draggable4" ).draggable({ grid: [ 20,20 ] });
-			//$( "#draggable5" ).draggable({ grid: [ 80, 80 ] });
-		});
+		ws.startGame();
 	</script>
 	</script>
 </body>

@@ -1,23 +1,51 @@
 window.Tile = Backbone.Model.extend({
-	//letter
-	//points
-	//position, default {}
+	defaults: {
+		position: {}
+	},
+
+	initialize: function() {
+		this.tileView = new TileView({model:this});
+	},
+
+	select: function() {
+		this.tileView.select();
+	},
+
+	unselect: function() {
+		this.tileView.unselect();
+	}
 });
 
 window.TileView = Backbone.View.extend({
-	tagName: 'div',
+	tagName: 'span',
 	className: 'tile',
+
+	events: {
+		"mousedown": "onClick"
+	},
+
+	onClick: function() {
+		this.model.trigger("tile:select", this.model);
+	},
 
 	//onclick, toggle selected
 	//ondblclick, if has position, clear position, move tile to hand
 
 	initialize: function(options) {
-		this.model = options.model;
 		this.template = window.JST['tile'];
-		$(this.el).html(this.template(this.model.toJSON()));
+		this.$el.html(this.template(this.model.toJSON()));
+		this.$el.draggable({
+			revert: "invalid",
+			appendTo: ".tileSlot",
+			addClasses: false
+		});
 	},
 
-	render: function() {
-		return this;
+	select: function() {
+		this.$el.addClass("selected");
+	},
+
+	unselect: function() {
+		this.$el.removeClass("selected");
 	}
 });

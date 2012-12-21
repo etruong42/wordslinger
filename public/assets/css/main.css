@@ -16,6 +16,31 @@
 	font-size: 18px;
 }
 
+.TL {
+	background-color: #004CFF;
+}
+
+.DL {
+	background-color: #7AA2FF;
+}
+
+.DW {
+	background-color: #F7656D;
+}
+
+.TW {
+	background-color: #E3000B;
+}
+
+.handSlot {
+	width: 35px;
+	height: 35px;
+	border: solid gray thin;
+	position: relative;
+	display: inline-block;
+	font-size: 18px;
+}
+
 .tile-letter {
 	color: red;
 	width: 10px;
@@ -40,16 +65,25 @@
 }
 
 .hand {
-	
+	border: solid gray thin;
+	width: 261px;
+	height: 36px;
+	margin: 5px;
+	padding: 2px;
+	float: left;
 }
 
 .selected {
 	border: solid red thin;
 }
+.active {
+	border: solid blue thin;
+}
+
+input.go {
+	float:left;
+}
 
 .board{
-	height: 100px;
-	width: 700px;
-	border: solid gray thin;
-	margin: 10px 5px 10px 5px;
+	
 }
