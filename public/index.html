@@ -22,14 +22,19 @@
 <body>
 	<div id='container'>
 		<div id='board1' class='board'></div>
-		<div class="playerPanel">
-			<div id='hand1' class='hand'></div>
-			<input type="button" class="go" value="Go" />
+		<div class="players">
+			<div class="playerPanel">
+				<div id='hand1' class='hand'></div>
+				<input type="button" class="showHideHand handhelp" value="hide" />
+				<span class="handscore handhelp">0</span>
+			</div>
+			<div class="playerPanel">
+				<div id='hand2' class='hand'></div>
+				<input type="button" class="showHideHand handhelp" value="hide" />
+				<span class="handscore handhelp">0</span>
+			</div>
 		</div>
-		<div class="playerPanel">
-			<div id='hand2' class='hand'></div>
-			<input type="button" class="go" value="Go" />
-		</div>
+		<input type="button" class="endTurn" value="Go" />
 	</div>
 
 	<script>

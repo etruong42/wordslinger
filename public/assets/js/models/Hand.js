@@ -4,7 +4,6 @@ window.Hand = Backbone.Collection.extend({
 	initialize: function() {
 		this.handView = new HandView({collection: this});
 		this.selectedTile = null;
-		this.on("tile:select", this.selectTile, this);
 	},
 
 	grabTiles: function(grabbag, grabNum, outTiles) {
@@ -13,10 +12,7 @@ window.Hand = Backbone.Collection.extend({
 			grabbag.add(outTiles);
 		}
 		_(grabNum).times(function(a){this.grabTile(grabbag);}, this);
-	},
-
-	getSelectedTile: function() {
-		return this.selectedTile;
+		return this;
 	},
 
 	selectTile: function(tile) {
@@ -29,20 +25,13 @@ window.Hand = Backbone.Collection.extend({
 
 	grabTile: function(grabbag) {
 		this.push(grabbag.pop());
-	}
-});
-
-window.EndTurnView = Backbone.View.extend({
-	initialize: function(options) {
-		this.game = options.game;
 	},
 
-	events: {
-		"click": "endTurn"
-	},
-
-	endTurn: function() {
-		this.game.endCurrentTurn();
+	endTurn: function(moveTiles) {
+		_.each(moveTiles, function(a) {a.unselect();});
+		_.each(moveTiles, function(a) {a.setDraggability(false);});
+		this.remove(moveTiles);
+		return this;
 	}
 });
 
@@ -65,22 +54,26 @@ window.HandView = Backbone.View.extend({
 		
 	},
 
-	renderTile: function(tile) {
-		this.$el.append(tile.tileView.$el);
-		tile.tileView.$el.draggable({
-			revert: "invalid",
-			appendTo: ".tileSlot",
-			addClasses: false
-		});
+	styleTile: function(tile) {
+		tile.tileView.$el
+			.draggable({
+				revert: "invalid",
+				appendTo: ".tileSlot",
+				addClasses: false
+			});
+		tile.styled = true;
+		return tile;
 	},
 
 	render: function(){
 		var that = this;
 		this.$el.empty();
+		//TODO: use DOM fragments
 		_(this.collection.models.length).times(function(a){
 			var newHandSlot = new HandSlot({hand: that.collection});
 			that.$el.append(newHandSlot.handSlotView.$el);
-			newHandSlot.handSlotView.$el.append(that.collection.models[a].tileView.$el);
+			newHandSlot.handSlotView.$el.append(that.styleTile(that.collection.models[a]).tileView.$el);
+			that.collection.models[a].tileView.delegateEvents();
 		});
 	},
 

@@ -6,6 +6,11 @@ window.TileSlot = Backbone.Model.extend({
 
 	initialize: function(options) {
 		this.tileSlotView = new TileSlotView({model: this, board: options.board});
+		if(!options.board.tileslots[options.x]){
+			options.board.tileslots[options.x] = [];
+		}
+
+		options.board.tileslots[options.x][options.y] = this;
 		this.x = options.x;
 		this.y = options.y;
 		modifierTileEquals = function(a) {
@@ -45,7 +50,6 @@ window.TileSlotView = Backbone.View.extend({
 	placeTile: function() {
 		var selected = this.board.getActiveHand().selectedTile;
 		if(selected) {
-
 			this.$el.append(selected.tileView.$el.attr("style", null));
 			selected.set({position: {x: this.model.x, y: this.model.y}});
 			this.board.trigger("tile:boardslotmove", selected);

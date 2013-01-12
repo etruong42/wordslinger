@@ -1,7 +1,26 @@
 window.Board = Backbone.Model.extend({
+	defaults: {
+		moves: [],
+		tiles: [],
+		tileslots: []
+	},
 	startGame: function() {
 		_.each(this.get("hands"), this.initHand, this);
 		this._activeHandIndex = 0;
+		this.initActiveHand();
+	},
+
+	initActiveHand: function() {
+		var activeHand = this.getActiveHand();
+		activeHand.on("tile:select", activeHand.selectTile, activeHand);
+		activeHand.forEach(function(a) {window.a = a; a.setDraggability(true);});
+	},
+
+	disableActiveHand: function() {
+		var activeHand = this.getActiveHand();
+		activeHand.off("tile:select", activeHand.selectTile, activeHand);
+		activeHand.forEach(function(a) {a.setDraggability(false);});
+		activeHand.selectedTile = null;
 	},
 
 	initHand: function(hand) {
@@ -11,19 +30,51 @@ window.Board = Backbone.Model.extend({
 
 	initialize: function(options) {
 		this.hands = options.hands;
+		this.tileslots = [];
 	},
 
 	getActiveHand: function() {
 		return this.hands[this._activeHandIndex];
 	},
 
+	addMove: function(move) {
+		_.each(move.models, function(a){this.get("tiles").push(a);}, this);
+	},
+
+	nextHand: function() {
+		this.disableActiveHand();
+		this._activeHandIndex++;
+		if(this._activeHandIndex == this.hands.length) {
+			this._activeHandIndex = 0;
+		}
+		this.initActiveHand();
+	},
+
+	getTilesOnAxis: function(axis, value){
+		return _.filter(this.get("tiles"),
+			function(a) {
+					return a.get("position")[axis] === value;
+			});
+	},
+
+	getTileAt: function(position){
+		var foundTiles =
+			_.filter(this.get("tiles"),
+				function(a){
+					return a.get("position").x === position.x &&
+						a.get("position").y === position.y;});
+		if(foundTiles) {
+			return foundTiles[0];
+		}
+	},
+
 	tileModifiers: {
 		TL: function(tile) {
-			return tile.get("score") * 3;
+			return tile.get("points") * 3;
 		},
 
 		DL: function(tile) {
-			return tile.get("score") * 2;
+			return tile.get("points") * 2;
 		}
 	},
 
@@ -58,10 +109,11 @@ window.BoardView = Backbone.View.extend({
 	},
 
 	generateRow: function(length, rowIndex) {
+		//TODO: use DOM fragments
 		for(var i = 0; i < length; i++) {
 			var tileSlot = new TileSlot({x:i, y:rowIndex, board:this.model});
 			this.$el.append(tileSlot.tileSlotView.el);
-
+			
 			tileSlot.tileSlotView.$el.droppable({
 				accept: ".tile",
 				tolerance: "pointer",

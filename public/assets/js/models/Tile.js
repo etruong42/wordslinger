@@ -13,6 +13,18 @@ window.Tile = Backbone.Model.extend({
 
 	unselect: function() {
 		this.tileView.unselect();
+	},
+
+	positionMatch: function(arr) {
+		return this.get("position").x === arr[0] &&
+			this.get("position").y === arr[1];
+	},
+
+	setDraggability: function(bool) {
+		if(bool)
+			this.tileView.$el.draggable('enable');
+		else
+			this.tileView.$el.draggable('disable');
 	}
 });
 
@@ -29,16 +41,10 @@ window.TileView = Backbone.View.extend({
 	},
 
 	//onclick, toggle selected
-	//ondblclick, if has position, clear position, move tile to hand
 
 	initialize: function(options) {
 		this.template = window.JST['tile'];
 		this.$el.html(this.template(this.model.toJSON()));
-		this.$el.draggable({
-			revert: "invalid",
-			appendTo: ".tileSlot",
-			addClasses: false
-		});
 	},
 
 	select: function() {
