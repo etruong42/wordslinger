@@ -72,6 +72,7 @@
 	height: 39px;
 	margin: 5px;
 	background: #6b4f22;
+	position:absolute;
 }
 
 .players{
@@ -79,10 +80,10 @@
 }
 
 .handhelp {
-	float: right;
-	position: relative;
-	top: -35px;
-	left: 20px;
+}
+
+.playerPanel{
+	height: 50px;
 }
 
 .selected {
@@ -92,8 +93,23 @@
 	border: solid blue thin;
 }
 
+.showHideHand {
+	width: 40px;
+	position: relative;
+	left: 300px;
+	top: 15px;
+}
+
 .handscore {
-	margin: 0 5px 0 5px;
+	position: relative;
+	left: 320px;
+	top: 18px;
+}
+
+.movescore {
+	position: relative;
+	left: 340px;
+	top: 18px;
 }
 
 input.go {

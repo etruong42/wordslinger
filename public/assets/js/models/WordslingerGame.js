@@ -12,10 +12,11 @@ window.WordslingerGame = Backbone.Model.extend({
 		this.initBoard(this.board);
 
 		var endTurnView = new EndTurnView({game: this});
+		endTurnView.$el.appendTo("div.players");
 	},
 
 	initMove: function() {
-		this.currentMove = new Move();
+		this.currentMove = new Move(/*{board: this.board}*/);
 		this.currentMove.board = this.board;
 	},
 

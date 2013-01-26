@@ -1,11 +1,31 @@
+var buster = buster || {};
+buster.log = buster.log || function(){};
+
 window.Move = Backbone.Collection.extend({
+	events: {
+		"add": "logChange",
+		"remove": "logChange"
+	},
+
+	logChange: function() {
+		//console.log(this.models.map(function(a) {return a.toJSON();}));
+		console.log(this.models.map(function(a) {return a.toJSON().letter;}));
+	},
 
 	initialize: function(options){
+		//this.board = options.board;
+		this.on("add", this.logChange, this);
+	},
+
+	updateCurrentMoveScore: function() {
+		this.board.getActiveHand()
+			.updateCurrentMoveScore(this.getTotalScore());
 	},
 
 	addTile: function(tile) {
 		this.removeTile(tile);
 		this.push(tile);
+		this.updateCurrentMoveScore();
 	},
 
 	removeTile: function(tile) {
@@ -14,6 +34,7 @@ window.Move = Backbone.Collection.extend({
 				function(a){
 					return a.cid === tile.cid;
 				}));
+		this.updateCurrentMoveScore();
 	},
 
 	getTotalScore: function() {
@@ -34,15 +55,7 @@ window.Move = Backbone.Collection.extend({
 			antiaxis = "y";
 		}
 
-		//console.log("axis: " + axis);
-		//console.log("antiaxis: " + antiaxis);
-
 		var firstTile = this.at(0);
-
-		//console.log("firstTile:");
-		//console.log(firstTile);
-		//console.log("move:");
-		//console.log(this);
 
 		if(!firstTile) {
 			return 0; //0 points for no tiles
@@ -50,8 +63,6 @@ window.Move = Backbone.Collection.extend({
 
 		var minaxiscoord = firstTile.get("position")[axis];
 		var antiaxiscoord = firstTile.get("position")[antiaxis];
-		//console.log("minaxiscoord: " + minaxiscoord);
-		//console.log("antiaxiscoord: " + antiaxiscoord);
 
 		var goingBack = true;
 
@@ -61,8 +72,6 @@ window.Move = Backbone.Collection.extend({
 		var baseCoord = null;
 
 		var boardTilesOnAxis = this.board.getTilesOnAxis(antiaxis, antiaxiscoord);
-		//console.log("boardTilesOnAxis");
-		//console.log(boardTilesOnAxis);
 		var goingBackCounter = minaxiscoord - 1;
 
 		var tileOnAxis = function(tile) {
@@ -83,9 +92,11 @@ window.Move = Backbone.Collection.extend({
 
 		//possible opt: filter tileModifiers to ones on axis to
 		//reduce iteration scope of following loop
+		var tile, loopCounter;
 
-		for(var i = 0; i < this.length; i++) {
-			var tile = this.at(i);
+		for(loopCounter = 0; loopCounter < this.length; loopCounter++) {
+			tile = this.at(loopCounter);
+			var currentScoreModifier;
 			if(!baseCoord) {
 				baseCoord = tile.get("position")[axis];
 			}
@@ -100,26 +111,83 @@ window.Move = Backbone.Collection.extend({
 					tile.positionMatch, tile)) {
 					tileModifier = this.board.tileModifiers[modifyKey];
 					if(this.board.scoreModifiers[modifyKey]) {
+						currentScoreModifier = this.board.scoreModifiers[modifyKey];
 						scoreModifiers.push(this.board.scoreModifiers[modifyKey]);
 					}
 				}
 			}
-			//travel along +/- directions of axis for existing tiles
+			//travel along +/- directions of antiaxis for existing tiles
 			//modify postScore to avoid score modification
-			var goingNeg = true, goingPos = true;
+			var goingNeg = true,
+				goingPos = true,
+				tmpPos,
+				curAntiaxisCoord,
+				goingTile,
+				counted = false,
+				goingScore = 0;
 
+			curAntiaxisCoord = antiaxiscoord - 1;
 			while(goingNeg){
-				goingNeg = false;
+				if(curAntiaxisCoord > -1) {
+					tmpPos = {};
+					tmpPos[antiaxis] = curAntiaxisCoord;
+					tmpPos[axis] = baseCoord;
+					goingTile = this.board.getTileAt(tmpPos);
+					if(goingTile) {
+						if(!counted) {
+							if(tileModifier) {
+								goingScore += tileModifier(tile);
+							}
+							else {
+								goingScore += tile.get("points");
+							}
+							counted = true;
+						}
+						goingScore += goingTile.get("points");
+						curAntiaxisCoord--;
+					}
+					else {
+						goingNeg = false;
+					}
+				}
 			}
 
+			curAntiaxisCoord = antiaxiscoord + 1;
 			while(goingPos) {
-				goingPos = false;
+				if(curAntiaxisCoord <= 15) { //TODO: get board max axis
+					tmpPos = {};
+					tmpPos[antiaxis] = curAntiaxisCoord;
+					tmpPos[axis] = baseCoord;
+					goingTile = this.board.getTileAt(tmpPos);
+					if(goingTile){
+						if(!counted) {
+							if(tileModifier) {
+								goingScore += tileModifier(tile);
+							}
+							else {
+								goingScore += tile.get("points");
+							}
+							counted = true;
+						}
+						goingScore += goingTile.get("points");
+						curAntiaxisCoord++;
+					}
+					else {
+						goingPos = false;
+					}
+				}
+			}
+
+			//done with going logic
+			if(currentScoreModifier) {
+				postScore += currentScoreModifier(goingScore);
+			} else {
+				postScore += goingScore;
 			}
 
 			if(tileModifier) {
 				runningScore += tileModifier(tile);
-			}
-			else {
+			} else {
 				runningScore += tile.get("points");
 			}
 		}
@@ -178,9 +246,13 @@ window.Move = Backbone.Collection.extend({
 });
 
 window.EndTurnView = Backbone.View.extend({
+	tagName: "input",
+	className: "endTurn",
+
 	initialize: function(options) {
 		this.game = options.game;
-		this.$el = $(".endTurn");
+		this.$el.attr("type", "button");
+		this.$el.attr("value", "Play Turn");
 	},
 
 	events: {
