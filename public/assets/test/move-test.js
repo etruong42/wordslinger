@@ -4,7 +4,7 @@ var spec = describe("Wordslinger move", function () {
 	before(function () {
 		
 		this.board = new Board({hands: []});
-		this.move = new Move(/*{board: this.board}*/);
+		this.move = new Move();
 
 		this.addTileToMove = function(move, letter, points, x, y) {
 			move.addTile(new Tile({
@@ -19,7 +19,7 @@ var spec = describe("Wordslinger move", function () {
 	});
 
 	it("sequence of moves give correct scores", function () {
-		var move = new Move(/*{board: this.board}*/);
+		var move = new Move();
 		move.board = this.board;
 		this.addTileToMove(move, "w", 4, 6, 7);
 		this.addTileToMove(move, "i", 1, 7, 7);
@@ -31,7 +31,7 @@ var spec = describe("Wordslinger move", function () {
 		this.board.addMove(move);
 		assert.equals(numBoardTiles + move.length, this.board.get("tiles").length);
 
-		move = new Move(/*{board: this.board}*/);
+		move = new Move();
 		move.board = this.board;
 		this.addTileToMove(move, "d", 1, 7, 6);
 		this.addTileToMove(move, "i", 1, 8, 6);
@@ -45,7 +45,7 @@ var spec = describe("Wordslinger move", function () {
 		this.board.addMove(move);
 		assert.equals(numBoardTiles + move.length, this.board.get("tiles").length);
 
-		move = new Move(/*{board: this.board}*/);
+		move = new Move();
 		move.board = this.board;
 		this.addTileToMove(move, "a", 1, 9, 5);
 		this.addTileToMove(move, "o", 1, 10, 5);
@@ -56,7 +56,7 @@ var spec = describe("Wordslinger move", function () {
 		this.board.addMove(move);
 		assert.equals(numBoardTiles + move.length, this.board.get("tiles").length);
 
-		move = new Move(/*{board: this.board}*/);
+		move = new Move();
 		move.board = this.board;
 		this.addTileToMove(move, "t", 1, 9, 4);
 		this.addTileToMove(move, "a", 1, 10, 4);

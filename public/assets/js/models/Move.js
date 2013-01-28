@@ -11,19 +11,12 @@ define(function() {
 		},
 
 		initialize: function(options){
-			//this.board = options.board;
 			this.on("add", this.logChange, this);
-		},
-
-		updateCurrentMoveScore: function() {
-			this.board.getActiveHand()
-				.updateCurrentMoveScore(this.getTotalScore());
 		},
 
 		addTile: function(tile) {
 			this.removeTile(tile);
 			this.push(tile);
-			//this.updateCurrentMoveScore();
 		},
 
 		removeTile: function(tile) {
@@ -32,7 +25,6 @@ define(function() {
 					function(a){
 						return a.cid === tile.cid;
 					}));
-			//this.updateCurrentMoveScore();
 		},
 
 		getTotalScore: function() {
@@ -240,25 +232,6 @@ define(function() {
 			}
 
 			return null;
-		}
-	});
-
-	window.EndTurnView = Backbone.View.extend({
-		tagName: "input",
-		className: "endTurn",
-
-		initialize: function(options) {
-			this.game = options.game;
-			this.$el.attr("type", "button");
-			this.$el.attr("value", "Play Turn");
-		},
-
-		events: {
-			"click": "endTurn"
-		},
-
-		endTurn: function() {
-			this.game.endCurrentTurn();
 		}
 	});
 

@@ -1,6 +1,7 @@
 define([
-	'models/Move'
-	], function(Move){
+	'models/Move',
+	'views/EndTurnView'
+	], function(Move, EndTurnView){
 	var WordslingerGame = Backbone.Model.extend({
 		initialize: function(options) {
 			this.board = options.board;
@@ -19,12 +20,12 @@ define([
 		},
 
 		initMove: function() {
-			this.currentMove = new Move(/*{board: this.board}*/);
+			this.currentMove = new Move();
 			this.currentMove.board = this.board;
 		},
 
 		initHand: function(hand) {
-			hand.on("tile:handslotmove", this.currentMove.removeTile, this.currentMove);
+			hand.on("tile:handslotmove", this.removeTileFromCurrentMove, this);
 		},
 
 		initBoard: function(board) {
@@ -47,7 +48,7 @@ define([
 		},
 
 		removeTileFromCurrentMove: function(tileRemoved) {
-			this.currentMove.tiles.remove(tileRemoved);
+			this.currentMove.removeTile(tileRemoved);
 			this.board.getActiveHand()
 				.updateCurrentMoveScore(this.currentMove.getTotalScore());
 		},
@@ -59,6 +60,7 @@ define([
 			}
 
 			this.board.getActiveHand()
+				.updateCurrentMoveScore(0)
 				.endTurn(this.currentMove.models)
 				.grabTiles(this.grabbag, this.currentMove.models.length)
 				.handView.render();

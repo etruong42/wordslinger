@@ -58,6 +58,7 @@ define([
 			else {
 				$(this.handView.getMovescoreEl()).hide();
 			}
+			return this;
 		}
 	});
 	return Hand;
