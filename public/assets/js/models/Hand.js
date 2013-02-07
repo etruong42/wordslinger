@@ -48,7 +48,7 @@ define([
 		},
 
 		updateCurrentMoveScore: function(movescore) {
-			console.log("updating: " + movescore);
+			//console.log("updating: " + movescore);
 			if(movescore) {
 				
 				var movescoreEl = this.handView.getMovescoreEl();

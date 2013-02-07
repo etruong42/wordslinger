@@ -91,8 +91,19 @@ define(function() {
 					baseCoord = tile.get("position")[axis];
 				}
 				else if(baseCoord !== tile.get("position")[axis] - 1) {
-					//check board already have tile
-					return null;
+					//check board already have tile(s)
+					goingBackCounter = 1 + baseCoord; //hijacking goingBackCounter for tileOnAxis function
+					while(goingBackCounter < tile.get("position")[axis]) {
+						//iterate from baseCoord to tile.get("position")[axis] - 1
+						var goingBetweenTile = _.find(boardTilesOnAxis, tileOnAxis);
+						if(goingBetweenTile) {
+							runningScore += goingBetweenTile.get("points");
+							goingBackCounter++;
+						}
+						else {
+							return null;
+						}
+					}
 				}
 				baseCoord = tile.get("position")[axis];
 				var tileModifier = null;
@@ -183,7 +194,7 @@ define(function() {
 			}
 
 			var goingForw = true;
-			var goingForwCounter = antiaxiscoord + 1;
+			var goingForwCounter = tile.get("position")[axis] + 1;
 
 			tileOnAxis = function(tile) {
 				return tile.get("position")[axis] === goingForwCounter;
