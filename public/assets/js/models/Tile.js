@@ -1,5 +1,5 @@
 define([
-	'views/TileView'
+	'TileView'
 	],	function(TileView){
 	Tile = Backbone.Model.extend({
 		defaults: {

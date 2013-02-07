@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Move Tests</title>
+	<link rel="stylesheet" href="resources/qunit.css">
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<script src="resources/qunit.js"></script>
+	<script src='../public/assets/js/vendor/jquery-1.8.2.js'></script>
+	<script src='../public/assets/js/vendor/underscore.js'></script>
+	<script src='../public/assets/js/vendor/ui/jquery-ui.custom.js'></script>
+	<script src='../public/assets/js/vendor/backbone.js'></script>
+	<script src="../public/assets/js/vendor/require.js"></script>
+	<script>
+		QUnit.config.autostart = false;
+		require.config({
+			baseUrl: "..",
+			paths: {
+				"TileView": "public/assets/js/views/TileView",
+				"Board": "public/assets/js/models/Board",
+				"Move": "public/assets/js/models/Move",
+				"Tile": "public/assets/js/models/Tile",
+				"jst": "public/assets/js/jst",
+				"MoveTest": "test/tests/MoveTest"
+			}
+		});
+		require(
+			[
+			"MoveTest"
+			], function (MoveTest) {
+				QUnit.start();
+				//MoveTest.RunTest1();
+				MoveTest.RunTest4();
+			}
+		);
+	</script>
+
+
+</body>
+</html>

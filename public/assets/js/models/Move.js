@@ -7,7 +7,7 @@ define(function() {
 
 		logChange: function() {
 			//console.log(this.models.map(function(a) {return a.toJSON();}));
-			console.log(this.models.map(function(a) {return a.toJSON().letter;}));
+			//console.log(this.models.map(function(a) {return a.toJSON().letter;}));
 		},
 
 		initialize: function(options){
@@ -128,7 +128,7 @@ define(function() {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else {
+								else if(this.length > 1) {
 									goingScore += tile.get("points");
 								}
 								counted = true;
@@ -154,7 +154,7 @@ define(function() {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else {
+								else if(this.length > 1) {
 									goingScore += tile.get("points");
 								}
 								counted = true;
@@ -183,7 +183,7 @@ define(function() {
 			}
 
 			var goingForw = true;
-			var goingForwCounter = minaxiscoord + 1;
+			var goingForwCounter = antiaxiscoord + 1;
 
 			tileOnAxis = function(tile) {
 				return tile.get("position")[axis] === goingForwCounter;
