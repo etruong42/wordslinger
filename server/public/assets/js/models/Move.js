@@ -1,5 +1,9 @@
 define(function() {
-	var Move = Backbone.Collection.extend({
+	var Move = Backbone.Model.extend({
+		defaults: {
+			tiles: []
+		},
+		url: "/move",
 		events: {
 			"add": "logChange",
 			"remove": "logChange"
@@ -12,40 +16,54 @@ define(function() {
 
 		initialize: function(options){
 			this.on("add", this.logChange, this);
+			this.tiles = [];
 		},
 
 		addTile: function(tile) {
 			this.removeTile(tile);
-			this.push(tile);
+			this.tiles.push(tile);
+			this.set({tiles: this.tiles});
+			//this.push(tile);
 		},
 
 		removeTile: function(tile) {
-			this.remove(
-				this.filter(
-					function(a){
-						return a.cid === tile.cid;
-					}));
+			//this.remove(
+				//this.filter(
+					//function(a){
+						//return a.cid === tile.cid;
+					//}));
+			//_.map(this.tiles, function(a){return a.cid;});
+			var removeIndex = this.tiles.indexOf(tile);
+			if(removeIndex > -1) {
+				this.tiles.splice(removeIndex, 1);
+			}
 		},
 
 		getTotalScore: function() {
 			var words = []; //words that will need to be validated
 			var countingTiles = [];
-			var orientation = this.getOrientation(); //sets comparator
+			var orientation = this.getOrientation();
 			if(!orientation){
 				return null;
 			}
-			this.sort();
+			
 			var axis, antiaxis;
 			if(orientation === "vert") {
 				axis = "y";
 				antiaxis = "x"; //all move tiles are on antiaxis
+				this.tiles = _.sortBy(this.tiles, function(sortTile) {
+					return sortTile.get("position").y;
+				});
 			}
 			if(orientation === "hori") {
 				axis = "x";
 				antiaxis = "y";
+				this.tiles = _.sortBy(this.tiles, function(sortTile) {
+					return sortTile.get("position").x;
+				});
 			}
 
-			var firstTile = this.at(0);
+			var firstTile = this.tiles[0];
 
 			if(!firstTile) {
 				return 0; //0 points for no tiles
@@ -83,9 +101,8 @@ define(function() {
 			//possible opt: filter tileModifiers to ones on axis to
 			//reduce iteration scope of following loop
 			var tile, loopCounter;
-
-			for(loopCounter = 0; loopCounter < this.length; loopCounter++) {
-				tile = this.at(loopCounter);
+			for(loopCounter = 0; loopCounter < this.tiles.length; loopCounter++) {
+				tile = this.tiles[loopCounter];
 				var currentScoreModifier;
 				if(!baseCoord) {
 					baseCoord = tile.get("position")[axis];
@@ -139,7 +156,7 @@ define(function() {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else if(this.length > 1) {
+								else if(this.tiles.length > 1) {
 									goingScore += tile.get("points");
 								}
 								counted = true;
@@ -165,7 +182,7 @@ define(function() {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else if(this.length > 1) {
+								else if(this.tiles.length > 1) {
 									goingScore += tile.get("points");
 								}
 								counted = true;
@@ -220,25 +237,19 @@ define(function() {
 		},
 
 		getOrientation: function() {
-			var axes = this.map(
+			var axes = _(this.tiles).map(
 				function(a) {
 					return a.get("position").x;
 				});
 			if(_.every(axes, function(a){return a==axes[0];})) {
-				this.comparator = function(tile) {
-					return tile.get("position").y;
-				};
 				return "vert";
 			}
 
-			axes = this.map(
+			axes = _(this.tiles).map(
 				function(a) {
 					return a.get("position").y;
 				});
 			if(_.every(axes, function(a){return a==axes[0];})) {
-				this.comparator = function(tile) {
-					return tile.get("position").x;
-				};
 				return "hori";
 			}
 

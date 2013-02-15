@@ -1,9 +1,8 @@
 define(function() {
 	var Board = Backbone.Model.extend({
 		defaults: {
-			moves: [],
-			tiles: [],
-			tileslots: []
+			//moves: [],
+			tiles: []
 		},
 		startGame: function() {
 			_.each(this.get("hands"), this.initHand, this);
@@ -39,7 +38,7 @@ define(function() {
 		},
 
 		addMove: function(move) {
-			_.each(move.models, function(a){this.get("tiles").push(a);}, this);
+			_.each(move.tiles, function(a){this.get("tiles").push(a);}, this);
 		},
 
 		nextHand: function() {

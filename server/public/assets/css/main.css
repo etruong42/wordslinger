@@ -3,6 +3,11 @@ body {
    font-weight: 300;
 }
 
+.container {
+	margin: auto;
+	width: 500px;
+}
+
 .tile {
 	width: 35px;
 	height: 35px;
@@ -73,8 +78,6 @@ body {
 
 .hand {
 	border-color: #4d3919;
-	width: 265px;
-	height: 39px;
 	margin: 5px;
 	background: #6b4f22;
 	position:absolute;

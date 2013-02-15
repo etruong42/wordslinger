@@ -56,6 +56,7 @@ define([
 			var gb = new Grabbag();
 			gb.initTiles(tileArray);
 			var b = new Board({hands: [h, h2], grabbag: gb});
+			window.board = b;
 			var bv = new BoardView({model:b, height: 15, width: 15, $el : $("#board1")});
 			var ws = new WordslingerGame({board: b, grabbag: gb});
 

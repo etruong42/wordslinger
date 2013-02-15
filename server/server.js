@@ -29,7 +29,7 @@ app.configure(function() {
 	app.use(express.cookieParser('This is my foogly coogly passphrace'));
 	app.use(express.session({secret: 'this is the session secret'}));
 	app.use(app.router);
-	app.use(express.static(__dirname + "/../public"));
+	app.use(express.static(__dirname + "/public"));
 	app.use(notFound);
 	app.use(errorHandler);
 });
@@ -45,10 +45,12 @@ app.configure('production', function() { //$ NODE_ENV=production node server.js
 
 });
 
-app.post('/wordslinger/sendMove', accessChecker, wordslinger.sendMove);
-//app.get('/wordslinger/sendMove', wordslinger.sendMove);
+app.get('/api/wordslinger/game', accessChecker, wordslinger.game);
 
-app.post('/player/login', player.login);
+app.post('/api/wordslinger/move', wordslinger.addMove);
+app.get('/api/wordslinger/move', wordslinger.getMove);
+
+app.post('/api/player/login', player.login);
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));

@@ -3,11 +3,12 @@ define([
 	'views/EndTurnView'
 	], function(Move, EndTurnView){
 	var WordslingerGame = Backbone.Model.extend({
+		url: "/wordslinger/game",
 		initialize: function(options) {
 			this.board = options.board;
 			this.grabbag = options.grabbag;
 			this.set("currentHandIndex", 0);
-			this.set("handsize", 7);
+			this.set("handsize", 100);
 
 			this.initMove();
 
@@ -61,8 +62,8 @@ define([
 
 			this.board.getActiveHand()
 				.updateCurrentMoveScore(0)
-				.endTurn(this.currentMove.models)
-				.grabTiles(this.grabbag, this.currentMove.models.length)
+				.endTurn(this.currentMove.tiles)
+				.grabTiles(this.grabbag, this.currentMove.tiles.length)
 				.handView.render();
 
 			this.board.addMove(this.currentMove);
@@ -79,7 +80,6 @@ define([
 			handscore += moveScore;
 
 			handscoreEl.html(handscore);
-			//sendTurn to server
 			this.initMove();
 			this.board.nextHand();
 		}

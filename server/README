@@ -1,0 +1,49 @@
+game 
+{
+	_id: ObjectId,
+	game_config_id: ObjectId,
+	board: [
+		{
+			letter: String
+			points: Number
+			position: 
+			{
+				x: Number
+				y: Number
+			}
+		}
+	]
+	players: [
+
+	]
+}
+
+player
+{
+	_id: ObjectId,
+	email: String
+}
+
+game_config 
+{
+	_id: ObjectId
+	board: 
+	{
+		width: Number
+		height: Number
+		modifiedTiles: {
+			modifierKey: [[Number, Number]]
+			[ ... ]
+			modifierKey: [[Number, Number]]
+		}
+	}
+	grabbag: 
+	{
+		tiles: [
+			{
+				points: Number
+				letter: String
+			}
+		]
+	}
+}
