@@ -4,8 +4,12 @@ define([
 	'views/BoardView',
 	'models/Hand',
 	'views/PlayerPanelView',
-	'models/Grabbag'
-	],function(WordslingerGame, Board, BoardView, Hand, PlayerPanelView, Grabbag){
+	'models/Grabbag',
+	'views/PlayerLoginView',
+	'views/PlayerSignupView',
+	'WordslingerRouter'
+	],function(WordslingerGame, Board, BoardView, Hand, PlayerPanelView, Grabbag,
+		PlayerLoginView, PlayerSignupView, WordslingerRouter){
 	return {
 		start: function(){
 			var tileArray = [
@@ -38,27 +42,37 @@ define([
 				{letter:"", points:0, count:2}
 			];
 
+			window.r = new WordslingerRouter();
+			Backbone.history.start();
+
+			var login = new PlayerLoginView();
+			var signup = new PlayerSignupView();
+			$('#login').append(login.render().$el);
+			$('#login').append(signup.render().$el);
+
 			var createPlayerPanel = function(hand) {
 				return new PlayerPanelView({hand: hand});
 			};
 
 			var h = new Hand();
-			//h.setVisibility(true);
-			//h.handView.$el = $('#hand1');
 
 			var h2 = new Hand();
-			//h2.handView.$el = $('#hand2');
 
-			$("div.players")
+			var $player = $("div.players")
 				.append(createPlayerPanel(h).$el)
 				.append(createPlayerPanel(h2).$el);
+			$player.hide();
 
 			var gb = new Grabbag();
 			gb.initTiles(tileArray);
 			var b = new Board({hands: [h, h2], grabbag: gb});
+			var $board = $("#board1");
+			$board.hide();
 			window.board = b;
-			var bv = new BoardView({model:b, height: 15, width: 15, $el : $("#board1")});
-			var ws = new WordslingerGame({board: b, grabbag: gb});
+			var bv = new BoardView({model:b, height: 15, width: 15, $el : $board});
+			var ws = new WordslingerGame();
+			ws.board = b;
+			ws.grabbag = gb;
 
 			ws.startGame();
 		}

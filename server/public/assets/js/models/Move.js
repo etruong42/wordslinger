@@ -3,7 +3,7 @@ define(function() {
 		defaults: {
 			tiles: []
 		},
-		url: "/move",
+		url: "/api/wordslinger/move",
 		events: {
 			"add": "logChange",
 			"remove": "logChange"

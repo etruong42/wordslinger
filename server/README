@@ -2,19 +2,45 @@ game
 {
 	_id: ObjectId,
 	game_config_id: ObjectId,
-	board: [
+	moves: [
 		{
-			letter: String
-			points: Number
-			position: 
-			{
-				x: Number
-				y: Number
-			}
+			playerIndex: Number
+			tiles: [
+				{
+					letter: String,
+					points: Number,
+					position: 	//tiles with no positions are swapped;
+								//that is, weren't put on the board
+					{
+						x: Number
+						y: Number
+					}
+				}
+			],
+			tilesGained : [
+				{
+					letter: String,
+					points: Number
+				}
+			]
 		}
 	]
 	players: [
-
+		{
+			playerId: ObjectId,
+			startingHand: [
+				{
+					letter: String,
+					ponts: Number
+				}
+			]
+		}
+	],
+	grabbag: [
+		{
+			letter: String,
+			ponts: Number
+		}
 	]
 }
 
@@ -31,11 +57,14 @@ game_config
 	{
 		width: Number
 		height: Number
-		modifiedTiles: {
-			modifierKey: [[Number, Number]]
-			[ ... ]
-			modifierKey: [[Number, Number]]
-		}
+		modifiedTiles: [
+			{
+				modifierKey: String,
+				modifiedTiles: [
+					[Number, Number]
+				]
+			}
+		]
 	}
 	grabbag: 
 	{
