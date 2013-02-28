@@ -1,5 +1,5 @@
 define(function() {
-	window.HandSlotView = Backbone.View.extend({
+	var HandSlotView = Backbone.View.extend({
 		tagName: "div",
 		className: "handSlot",
 

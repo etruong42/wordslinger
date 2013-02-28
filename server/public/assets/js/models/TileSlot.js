@@ -20,7 +20,6 @@ define([
 				return a[0] == options.x && a[1] == options.y;
 			};
 			for(var modifierKey in options.board.modifiedTiles) {
-				window.a = modifierKey;
 				var modifierTiles = options.board.modifiedTiles[modifierKey];
 				if(_.any(modifierTiles, modifierTileEquals)) {
 					this.set({tileModifier: options.board.tileModifiers[modifierKey]});

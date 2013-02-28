@@ -64,8 +64,8 @@ define(function() {
 						//$('.alert-error').text(data.error.text).show();
 						alert(data.error);
 					}
-					else { // If not, send them back to the home page
-						window.location.replace('#');
+					else {
+						
 					}
 				}
 			});

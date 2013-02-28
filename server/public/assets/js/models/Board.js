@@ -13,7 +13,7 @@ define(function() {
 		initActiveHand: function() {
 			var activeHand = this.getActiveHand();
 			activeHand.on("tile:select", activeHand.selectTile, activeHand);
-			activeHand.forEach(function(a) {window.a = a; a.setDraggability(true);});
+			activeHand.forEach(function(a) {a.setDraggability(true);});
 		},
 
 		disableActiveHand: function() {
