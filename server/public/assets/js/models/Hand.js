@@ -8,9 +8,9 @@ define([
 
 		initialize: function() {
 			this.handView = new HandView({collection: this});
-			this.visibilityControl = new HideHandView({hand: this});
-			this.visible = false;
-			this.handView.$el.hide();
+			//this.visibilityControl = new HideHandView({hand: this});
+			//this.visible = true;
+			//this.handView.$el.hide();
 			this.selectedTile = null;
 		},
 
@@ -19,7 +19,21 @@ define([
 			this.visibilityControl.setHandVisibility(this, bool);
 		},
 
+		populate: function(data) {
+			var dataTiles = _.map(
+				data.playerHand,
+				function(a){return new Tile(a);}
+			);
+			_(dataTiles.length).times(function(i){
+				this.push(dataTiles[i]);
+			}, this);
+			this.handView.render();
+		},
+
 		grabTiles: function(grabbag, grabNum, outTiles) {
+			if(!grabbag) {
+				return this;
+			}
 			if(outTiles) {
 				this.remove(outTiles);
 				grabbag.add(outTiles);

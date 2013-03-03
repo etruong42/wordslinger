@@ -1,13 +1,6 @@
 define([
-	'models/WordslingerGame',
-	'models/Board',
-	'views/BoardView',
-	'models/Hand',
-	'views/PlayerPanelView',
-	'models/Grabbag',
 	'WordslingerRouter'
-	],function(WordslingerGame, Board, BoardView, Hand, PlayerPanelView, Grabbag,
-		WordslingerRouter){
+	],function(WordslingerRouter){
 	return {
 		start: function() {
 			var r = new WordslingerRouter();

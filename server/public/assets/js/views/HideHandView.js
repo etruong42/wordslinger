@@ -30,5 +30,5 @@ define(function() {
 		}
 	});
 
-	return HideHandView;
+	//return HideHandView;
 });

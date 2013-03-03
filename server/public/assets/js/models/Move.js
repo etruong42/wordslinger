@@ -14,6 +14,16 @@ define(function() {
 			//console.log(this.models.map(function(a) {return a.toJSON().letter;}));
 		},
 
+		toJSON: function() {
+			var json = _.clone(this.attributes);
+			_.each(json.tiles, function(value, name) {
+				if(_.isFunction(value.toJSON)) {
+					json.tiles[name] = value.toJSON();
+				}
+			});
+			return json;
+		},
+
 		initialize: function(options){
 			this.on("add", this.logChange, this);
 			this.tiles = [];

@@ -42,6 +42,7 @@ define([
 					.append(that.styleTile(that.collection.models[a]).tileView.$el);
 				that.collection.models[a].tileView.delegateEvents();
 			});
+			return this;
 		},
 
 		getFirstEmpty: function() {

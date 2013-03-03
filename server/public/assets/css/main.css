@@ -8,6 +8,11 @@ body {
 	width: 500px;
 }
 
+h1 {
+	margin: auto;
+	width: 500px;
+}
+
 .tile {
 	width: 35px;
 	height: 35px;
@@ -101,22 +106,22 @@ body {
 	border: solid blue thin;
 }
 
-.showHideHand {
-	width: 46px;
+.endTurn {
+	width: 60px;
 	position: relative;
-	left: 300px;
+	left: 280px;
 	top: 15px;
 }
 
 .handscore {
 	position: relative;
-	left: 320px;
+	left: 300px;
 	top: 18px;
 }
 
 .movescore {
 	position: relative;
-	left: 340px;
+	left: 320px;
 	top: 18px;
 }
 

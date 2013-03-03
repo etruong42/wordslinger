@@ -5,8 +5,8 @@ define(function() {
 			tiles: []
 		},
 		startGame: function() {
-			_.each(this.get("hands"), this.initHand, this);
-			this._activeHandIndex = 0;
+			//_.each(this.get("hands"), this.initHand, this);
+			
 			this.initActiveHand();
 		},
 
@@ -24,11 +24,16 @@ define(function() {
 		},
 
 		initHand: function(hand) {
-			hand.grabTiles(this.get("grabbag"), 7);
-			hand.handView.render();
+			//hand.grabTiles(this.get("grabbag"), 7);
+			//hand.handView.render();
+		},
+
+		populate: function(data) {
+			this.getActiveHand().populate(data);
 		},
 
 		initialize: function(options) {
+			this._activeHandIndex = 0;
 			this.hands = options.hands;
 			this.tileslots = [];
 		},

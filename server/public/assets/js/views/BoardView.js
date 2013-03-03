@@ -6,7 +6,9 @@ define([
 		className: 'board',
 
 		render: function() {
-			return 0;
+			this.$el.width(this.width * 38);
+			this.$el.height(this.height * 38);
+			return this;
 		},
 
 		generateRow: function(length, rowIndex) {
@@ -26,9 +28,6 @@ define([
 		initialize: function(options) {
 			this.width = options.width;
 			this.height = options.height;
-			this.$el = options.$el;
-			this.$el.width(this.width * 38);
-			this.$el.height(this.height * 38);
 			for(var i = 0; i < this.height; i++) {
 				this.generateRow(this.width, i);
 			}

@@ -16,7 +16,7 @@ app.configure(function() {
 	app.set('port', process.env.PORT || 3000);
 	app.use(express.favicon());
 	app.use(express.bodyParser());
-	app.use(express.cookieParser('This is my foogly coogly passphrase'));
+	app.use(express.cookieParser());
 	app.use(express.session({secret: 'this is the session secret'}));
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
@@ -39,8 +39,7 @@ app.get('/login', function(req, res) {
 
 app.post('/api/wordslinger/game', wordslingerRoute.game);
 
-app.post('/api/wordslinger/move', wordslingerRoute.addMove);
-app.get('/api/wordslinger/move', wordslingerRoute.getMove);
+app.post('/api/wordslinger/move', wordslingerRoute.move);
 
 app.get('/api/wordslinger/games', wordslingerRoute.games);
 
