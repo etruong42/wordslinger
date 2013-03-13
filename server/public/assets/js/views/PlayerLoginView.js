@@ -4,13 +4,15 @@ define(function() {
 
 		render: function() {
 			if(!this.rendered) {
-				this.$email = $("<input type='text' class='email' />");
+				this.$email =
+					$("<input type='text' class='email' />");
 				this.$emailDiv = $("<div></div>")
 					.append("<span>Email: </span>")
 					.append(this.$email);
 				this.$email.keypress($.proxy(this.textEnter, this));
 
-				this.$password = $("<input type='password' class='password' />");
+				this.$password =
+					$("<input type='password' class='password' />");
 				this.$passwordDiv = $("<div></div>")
 					.append("<span>Password: </span>")
 					.append(this.$password);

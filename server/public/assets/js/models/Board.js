@@ -1,12 +1,19 @@
-define(function() {
+define([
+	'views/BoardView'
+	],function(BoardView) {
 	var Board = Backbone.Model.extend({
 		defaults: {
 			//moves: [],
 			tiles: []
 		},
+		initialize: function(options) {
+			this._activeHandIndex = 0;
+			this.hands = options.hands;
+			this.tileslots = [];
+		},
+
 		startGame: function() {
 			//_.each(this.get("hands"), this.initHand, this);
-			
 			this.initActiveHand();
 		},
 
@@ -30,12 +37,10 @@ define(function() {
 
 		populate: function(data) {
 			this.getActiveHand().populate(data);
-		},
-
-		initialize: function(options) {
-			this._activeHandIndex = 0;
-			this.hands = options.hands;
-			this.tileslots = [];
+			_.each(
+				_.flatten(_.pluck(data.moves, 'tiles')),
+					function(a){this.addTile(a);},
+					this);
 		},
 
 		getActiveHand: function() {
@@ -44,6 +49,14 @@ define(function() {
 
 		addMove: function(move) {
 			_.each(move.tiles, function(a){this.get("tiles").push(a);}, this);
+		},
+
+		addTile: function(tile) {
+			var tileModel = new Tile(tile);
+			var position = tile.position;
+			this.tileslots[position.x][position.y].tileSlotView.$el
+				.append(tileModel.tileView.$el);
+			this.get("tiles").push(tileModel);
 		},
 
 		nextHand: function() {

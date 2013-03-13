@@ -174,6 +174,26 @@ define(
 			theMove.board.addMove(theMove);
 			//equal(numBoardTiles + theMove.length, theMove.board.get("tiles").length);
 		};
+		var test6 = function() {
+			var theMove = new Move();
+			theMove.board = new Board({hands: []});
+			var board = theMove.board;
+			theMove.board.set({tiles: []});
+			moveTestGlobal.addTileToMove(theMove, "m", 3, 7, 7);
+			moveTestGlobal.addTileToMove(theMove, "a", 1, 7, 8);
+			equal(theMove.getTotalScore(), 8);
+			var numBoardTiles = theMove.board.get("tiles").length;
+			theMove.board.addMove(theMove);
+			//equal(numBoardTiles + theMove.length, theMove.board.get("tiles").length);
+
+			theMove = new Move();
+			theMove.board = board;
+			moveTestGlobal.addTileToMove(theMove, "x", 8, 8, 8);
+			equal(theMove.getTotalScore(), 17);
+			numBoardTiles = theMove.board.get("tiles").length;
+			theMove.board.addMove(theMove);
+			//equal(numBoardTiles + theMove.length, theMove.board.get("tiles").length);
+		};
 		return {
 			RunTest1: function () {
 				test("wife -> dildo -> ao -> tad", test1);
@@ -193,6 +213,10 @@ define(
 
 			RunTest5: function() {
 				test("mast -> moat -> sank -> pain; between", test5);
+			},
+
+			RunTest6: function() {
+				test("ma -> ax; goingForward", test6);
 			}
 		};
 	});

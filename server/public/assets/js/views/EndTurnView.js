@@ -7,6 +7,7 @@ define(function() {
 			this.game = options.game;
 			this.$el.attr("type", "button");
 			this.$el.attr("value", "Play Turn");
+			this.disable();
 		},
 
 		events: {
@@ -15,6 +16,14 @@ define(function() {
 
 		endTurn: function() {
 			this.game.endCurrentTurn();
+		},
+
+		enable: function() {
+			this.$el.removeAttr('disabled');
+		},
+
+		disable: function() {
+			this.$el.attr('disabled', 'disabled');
 		}
 	});
 

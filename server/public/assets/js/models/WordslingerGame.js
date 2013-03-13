@@ -12,14 +12,15 @@ define([
 			this.set("handsize", 7);
 			this.on("move:submitted", this.updateHand);
 			var h = new Hand();
-			this.board = new Board({hands: [h]});
-			var bv = new BoardView({model:this.board, height: 15, width: 15});
-			bv.render().$el.appendTo(options.$el);
+			this.board = new Board({hands: [h], $el: options.$el});
+			this.board.boardView =
+				new BoardView({model:this.board, height: 15, width: 15});
+			this.board.boardView.render().$el.appendTo(options.$el);
 			var $player = $("<div class='players'></div>");
-			var playerPanel = new PlayerPanelView({hand: h, game: this});
-			playerPanel.$el.append();
+			this.playerPanelView = new PlayerPanelView({hand: h, game: this});
+			this.playerPanelView.$el.append();
 			$player
-				.append(playerPanel.$el)
+				.append(this.playerPanelView.$el)
 				.appendTo(options.$el);
 		},
 
@@ -47,6 +48,12 @@ define([
 
 		populate: function(data) {
 			this.board.populate(data);
+			var playerscore = _.chain(data.moves)
+				.filter(function(a){return a.playerId == data.yourId;})
+				.pluck('points')
+				.reduce(function(sum, a){return sum+a;}, 0).value();
+			this.setPlayerScore(playerscore);
+			this.playerPanelView.setIsYourTurn(data.isYourTurn);
 		},
 
 		setActiveTile: function(tile) {
@@ -70,28 +77,37 @@ define([
 			if(!moveScore) {
 				return; //not valid move
 			}
-			var handscoreEl = $(this.board.getActiveHand().handView.$el.parent())
-				.find(".handscore");
-
-			var handscore = parseInt(handscoreEl.html(), 10);
-
-			if(!handscore) {
-				handscore = 0;
-			}
-			handscore += moveScore;
-			handscoreEl.html(handscore);
+			this.currentMove.set({points: moveScore});
+			this.incPlayerScore(moveScore);
 			this.currentMove.set({gameId: this.get("gameId")});
 			this.submitMove(this.currentMove.toJSON());
-			this.initMove();
-			//this.board.nextHand();
+			this.initMove(); //init next move
 
 			this.board.getActiveHand()
 				.updateCurrentMoveScore(0)
 				.endTurn(this.currentMove.tiles);
-				//.grabTiles(this.grabbag, this.currentMove.tiles.length)
-				//.handView.render();
 
 			this.board.addMove(this.currentMove);
+			this.playerPanelView.setIsYourTurn(false);
+		},
+
+		setPlayerScore: function(val) {
+			var $playerscore = $(this.board.getActiveHand().handView.$el.parent())
+				.find(".handscore");
+			$playerscore.html(val);
+		},
+
+		incPlayerScore: function(val) {
+			var $playerscore = $(this.board.getActiveHand().handView.$el.parent())
+				.find(".handscore");
+
+			var playerscore = parseInt($playerscore.html(), 10);
+
+			if(!playerscore) {
+				playerscore = 0;
+			}
+			playerscore += val;
+			$playerscore.html(playerscore);
 		},
 
 		submitMove: function(move) {
@@ -118,6 +134,5 @@ define([
 			});
 		}
 	});
-	
 	return WordslingerGame;
 });

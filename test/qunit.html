@@ -19,12 +19,15 @@
 		require.config({
 			baseUrl: "../",
 			paths: {
-				"TileView": "server/public/assets/js/views/TileView",
+				"views/TileView": "server/public/assets/js/views/TileView",
 				"Board": "server/public/assets/js/models/Board",
 				"Move": "server/public/assets/js/models/Move",
 				"Tile": "server/public/assets/js/models/Tile",
 				"jst": "server/public/assets/js/jst",
-				"MoveTest": "test/tests/MoveTest"
+				"MoveTest": "test/tests/MoveTest",
+				"views/BoardView" : "server/public/assets/js/views/BoardView",
+				"models/TileSlot" : "server/public/assets/js/models/TileSlot",
+				"views/TileSlotView" : "server/public/assets/js/views/TileSlotView"
 			}
 		});
 		require(
@@ -37,6 +40,7 @@
 				MoveTest.RunTest3();
 				MoveTest.RunTest4();
 				MoveTest.RunTest5();
+				MoveTest.RunTest6();
 			}
 		);
 	</script>

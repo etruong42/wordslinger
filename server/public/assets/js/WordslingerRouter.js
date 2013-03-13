@@ -4,12 +4,9 @@ define([
 	'views/PlayerMenuView',
 	'models/WordslingerGame',
 	'models/Board',
-	'views/BoardView',
-	'models/Hand',
-	'views/PlayerPanelView',
-	'models/Grabbag'
+	'views/BoardView'
 	], function(PlayerLoginView, PlayerSignupView, PlayerMenuView,
-		WordslingerGame, Board, BoardView, Hand, PlayerPanelView, Grabbag){
+		WordslingerGame, Board, BoardView){
 	var WordslingerRouter = Backbone.Router.extend({
 		routes: {
 			"player/:id": "showPlayer",
@@ -54,12 +51,9 @@ define([
 		showGame: function(id) {
 			this.$container.empty();
 			console.log("showGame:" + id);
-			
-			
-			var wg = new WordslingerGame({gameId: id, $el: this.$container});
 
+			var wg = new WordslingerGame({gameId: id, $el: this.$container});
 			this.on("gamestatus:retrieved", function(gameData) {
-				console.log(["populating game", gameData]);
 				wg.populate(gameData);
 				this.off();
 			});
@@ -76,21 +70,10 @@ define([
 			console.log(["show game with data ", data]);
 			this.navigate("game/" + data.gameId);
 			this.$container.empty();
-			var h = new Hand();
-			
-			var b = new Board({hands: [h]});
-			var bv = new BoardView({model:b, height: 15, width: 15});
-			var ws = new WordslingerGame({gameId: data.gameId});
-
-			var $player = $("<div class='players'></div>")
-					.append((new PlayerPanelView({hand: h})).$el)
-					.append(new EndTurnView({game: ws}).$el)
-					.appendTo(this.$container);
-
-			ws.board = b;
-			ws.grabbag = gb;
-
-			ws.startGame();
+			var wg = new WordslingerGame({
+				gameId: data.gameId, $el: this.$container});
+			wg.startGame();
+			wg.populate(data);
 		},
 
 		getGame: function (gameData) {
@@ -103,7 +86,7 @@ define([
 				dataType: "json",
 				data: gameData,
 				success: function (data) {
-					console.log(["Retrieve game request details: ", data]);
+					console.log(["/api/wordslinger/game: ", data]);
 					if(data.error) {  // If there is an error, show the error messages
 						//$('.alert-error').text(data.error.text).show();
 						alert(data.error);

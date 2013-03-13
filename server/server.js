@@ -1,7 +1,8 @@
 var express = require('express'),
 	//everyauth = require('everyauth');
 	wordslingerRoute = require('./routes/wordslingerRoute.js'),
-	http = require('http');
+	http = require('http'),
+	MongoStore = require('connect-mongo')(express);
 var app = express();
 
 var accessChecker = function(req, res, next) {
@@ -17,7 +18,12 @@ app.configure(function() {
 	app.use(express.favicon());
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
-	app.use(express.session({secret: 'this is the session secret'}));
+	app.use(express.session({
+		secret: 'this is the session secret',
+		store: new MongoStore({
+			db: "wordslinger_database"
+		})
+	}));
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.use(app.router);
@@ -42,6 +48,8 @@ app.post('/api/wordslinger/game', wordslingerRoute.game);
 app.post('/api/wordslinger/move', wordslingerRoute.move);
 
 app.get('/api/wordslinger/games', wordslingerRoute.games);
+
+app.get('/admin/games', wordslingerRoute.dbgame);
 
 app.post('/api/player/login', wordslingerRoute.login);
 app.post('/api/player/signup', wordslingerRoute.signup);

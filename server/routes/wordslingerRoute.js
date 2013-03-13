@@ -36,6 +36,7 @@ var handSize = 7;
 mongoose.connect('mongodb://localhost/wordslinger_database');
 
 var GameSchema = new mongoose.Schema({
+	activePlayerIndex: Number,
 	moves: [
 		{
 			playerId: mongoose.Schema.Types.ObjectId,
@@ -103,6 +104,7 @@ var getPlayerDoc = function(game, playerId) {
 };
 var PlayerSchema = new mongoose.Schema({
 	email: String,
+	username: String,
 	password: String
 });
 
@@ -117,14 +119,17 @@ var toJSON = function(obj) {
 };
 
 exports.move = function(req, res) {
-	console.log('post move sessionID ' + req.sessionID);
-	console.log('trying to update game with id {' + req.body.gameId +'}');
-	//TODO: find game by id AND logged in player has write access
 	GameModel.findById(req.body.gameId, function(err, game) {
 		if(err) {
 			return console.log(err);
 		}
-		//var grabbedTiles = game.grabbag.splice(0, req.body.tiles.length);
+		var activeGamePlayer = game.players[game.activePlayerIndex];
+		if(!activeGamePlayer ||
+			activeGamePlayer.playerId.toString() !== req.session.playerId)
+		{
+			res.send({route: "notYourTurn"});
+			return;
+		}
 		var grabbedTiles = [];
 		for(var i = 0; i < req.body.tiles.length; i++) {
 			grabbedTiles.push(game.grabbag.pop());
@@ -132,21 +137,41 @@ exports.move = function(req, res) {
 		game.moves.push({
 			playerId: req.session.playerId,
 			tiles: req.body.tiles,
-			//TODO points: points
+			points: req.body.points,
 			tilesGained: grabbedTiles
 		});
-		var curPlayer = getPlayerDoc(game, req.session.playerId);
-		for(var tileIndex = 0; tileIndex < req.body.tiles.length; tileIndex++) {
-			curPlayer.currentHand
-				.remove(mongoose.Types.ObjectId(req.body.tiles[tileIndex]._id));
+		if(game.activePlayerIndex === 0 ||
+			game.activePlayerIndex < game.players.length - 1)
+		{
+			game.activePlayerIndex++;
+		} else {
+			game.activePlayerIndex = 0;
 		}
-		
+		var curPlayer = getPlayerDoc(game, req.session.playerId);
+		var playedIds = req.body.tiles.map(
+			function(a){return a._id.toString();}
+		);
+		var playedTiles = curPlayer.currentHand.filter(
+			function(a){return playedIds.indexOf(a._id.toString()) > -1;}
+		);
+
+		for(var playedTileKey = 0; playedTileKey < playedTiles.length; playedTileKey++) {
+			playedTiles[playedTileKey].remove();
+		}
+		grabbedTiles.forEach(function(a){curPlayer.currentHand.push(a);});
+
 		game.save(function(err, savedGame) {
 			if(err) {
 				return console.log(err);
 			}
 			res.send({tiles: grabbedTiles});
 		});
+	});
+};
+
+exports.dbgame = function(req, res) {
+	GameModel.find({}, function(err, result) {
+		res.send(result);
 	});
 };
 
@@ -160,23 +185,46 @@ var getTiles = function(tileObj) {
 
 exports.game = function(req, res) {
 	if(!req.body.gameId && req.session.playerId) {
-		//no gameId from a logged in player means create
-		var newGame = new GameModel();
-		var grabbagTiles = _.shuffle(_.flatten(tileArray.map(getTiles)));
-		var hand = [];
-		for(var i = 0; i < handSize; i++) {
-			hand.push(grabbagTiles.pop());
-		}
-		newGame.players.push({
-			playerId: req.session.playerId,
-			startingHand: hand,
-			currentHand: hand
-		});
-		newGame.grabbag = grabbagTiles;
-		newGame.save(function(err, game) {
-			res.send({
-				gameId: game.id,
-				playerHand: game.players[0]
+		PlayerModel.findOne({email: req.body.players}, function(err, opponent) {
+			if(err) {
+				return console.log(err);
+			}
+			if(!opponent) {
+				res.send({
+					error: "Player does not exist!"
+				});
+			}
+			//no gameId from a logged in player means create
+			var newGame = new GameModel();
+			var grabbagTiles = _.shuffle(_.flatten(tileArray.map(getTiles)));
+			var hand = [];
+			for(var i = 0; i < handSize; i++) {
+				hand.push(grabbagTiles.pop());
+			}
+			newGame.players.push({
+				playerId: req.session.playerId,
+				startingHand: hand,
+				currentHand: hand
+			});
+
+			hand = [];
+
+			for(i = 0; i < handSize; i++) {
+				hand.push(grabbagTiles.pop());
+			}
+
+			newGame.players.push({
+				playerId: opponent._id,
+				startingHand: hand,
+				currentHand: hand
+			});
+			newGame.activePlayerIndex = 0;
+			newGame.grabbag = grabbagTiles;
+			newGame.save(function(err, game) {
+				res.send({
+					gameId: game.id,
+					playerHand: game.players[0].currentHand
+				});
 			});
 		});
 	} else if(req.body.gameId && req.session.playerId) {
@@ -184,9 +232,18 @@ exports.game = function(req, res) {
 		//TODO: add permissions
 		var curPlayerId = req.session.playerId;
 		GameModel.findById(req.body.gameId, function(err, game) {
-			if(err) return console.log(err);
+			if(err) {
+				return console.log(err);
+			}
 			var curPlayer = getPlayerDoc(game, curPlayerId);
+			if(!curPlayer) {
+				res.send({route: "noaccess"});
+			}
+			var isYourTurn = game.players[game.activePlayerIndex].playerId.toString() ===
+				req.session.playerId;
 			res.send({
+				yourId: curPlayer.playerId,
+				isYourTurn: isYourTurn,
 				moves: game.moves,
 				playerHand: curPlayer.currentHand
 			});

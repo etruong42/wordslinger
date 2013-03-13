@@ -4,15 +4,6 @@ define(function() {
 			tiles: []
 		},
 		url: "/api/wordslinger/move",
-		events: {
-			"add": "logChange",
-			"remove": "logChange"
-		},
-
-		logChange: function() {
-			//console.log(this.models.map(function(a) {return a.toJSON();}));
-			//console.log(this.models.map(function(a) {return a.toJSON().letter;}));
-		},
 
 		toJSON: function() {
 			var json = _.clone(this.attributes);
@@ -37,12 +28,6 @@ define(function() {
 		},
 
 		removeTile: function(tile) {
-			//this.remove(
-				//this.filter(
-					//function(a){
-						//return a.cid === tile.cid;
-					//}));
-			//_.map(this.tiles, function(a){return a.cid;});
 			var removeIndex = this.tiles.indexOf(tile);
 			if(removeIndex > -1) {
 				this.tiles.splice(removeIndex, 1);
@@ -56,7 +41,7 @@ define(function() {
 			if(!orientation){
 				return null;
 			}
-			
+
 			var axis, antiaxis;
 			if(orientation === "vert") {
 				axis = "y";
@@ -162,11 +147,11 @@ define(function() {
 						tmpPos[axis] = baseCoord;
 						goingTile = this.board.getTileAt(tmpPos);
 						if(goingTile) {
-							if(!counted) {
+							if(!counted && this.tiles.length > 1) {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else if(this.tiles.length > 1) {
+								else {
 									goingScore += tile.get("points");
 								}
 								counted = true;
@@ -188,11 +173,11 @@ define(function() {
 						tmpPos[axis] = baseCoord;
 						goingTile = this.board.getTileAt(tmpPos);
 						if(goingTile){
-							if(!counted) {
+							if(!counted && this.tiles.length > 1) {
 								if(tileModifier) {
 									goingScore += tileModifier(tile);
 								}
-								else if(this.tiles.length > 1) {
+								else {
 									goingScore += tile.get("points");
 								}
 								counted = true;

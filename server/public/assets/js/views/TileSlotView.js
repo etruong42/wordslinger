@@ -18,6 +18,7 @@ define(function() {
 		},
 
 		placeTile: function() {
+			if(!this.$el.is(":empty")) return;
 			var selected = this.board.getActiveHand().selectedTile;
 			if(selected) {
 				this.$el.append(selected.tileView.$el.attr("style", null));

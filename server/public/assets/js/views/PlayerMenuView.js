@@ -2,11 +2,41 @@ define(function() {
 	var PlayerMenuView = Backbone.View.extend({
 		tagName: "div",
 
+		initialize: function() {
+			this.on("game:error", this.alertError);
+		},
+
+		events: {
+			"game:error": "alertError"
+		},
+
+		alertError: function(error) {
+			alert(error);
+		},
+
 		renderCreateGameButton: function() {
-			var $createGame =
+			var $createGame = $("<div class='create-game'></div>");
+			var $playerInvite = $("<input type='text' />");
+			var $createGameButton =
 				$("<input type='button' value='New Game' />");
-			$createGame.click($.proxy(this.newGame, this));
+			$createGame
+				.append("Enter opponent's email address: ")
+				.append($playerInvite)
+				.append($createGameButton);
+			$playerInvite.keypress(
+				$.proxy(this.newGameKeyPress($playerInvite), this)
+			);
+			$createGameButton.click($.proxy(this.newGame($playerInvite), this));
 			return $createGame;
+		},
+
+		newGameKeyPress: function($playerInvite) {
+			var that = this;
+			return function(e) {
+				if(e.which == 13) {
+					this.newGame($playerInvite)();
+				}
+			};
 		},
 
 		renderGamesMenu: function(data) {
@@ -43,28 +73,37 @@ define(function() {
 			return this;
 		},
 
-		newGame: function () {
+		newGame: function ($playerInvite) {
 			//$('.alert-error').hide(); // Hide any errors on a new submit
 			var url = '/api/wordslinger/game';
 			var that = this;
-
-			$.ajax({
-				url: url,
-				type: 'POST',
-				dataType: "json",
-				success: function (data) {
-					console.log(["New game request details: ", data]);
-
-					if(data.error) {  // If there is an error, show the error messages
-						//$('.alert-error').text(data.error.text).show();
-						alert(data.error);
-					}
-					else {
-						console.log('triggering game:created');
-						that.trigger("game:created", data);
-					}
+			return function() {
+				var players = $playerInvite.val();
+				if(!players) {
+					that.trigger("game:error", "Please enter the opponent's email address");
+					return;
 				}
-			});
+				$.ajax({
+					url: url,
+					type: 'POST',
+					dataType: "json",
+					data: {
+						players: players
+					},
+					success: function (data) {
+						console.log(["New game request details: ", data]);
+
+						if(data.error) {  // If there is an error, show the error messages
+							//$('.alert-error').text(data.error.text).show();
+							alert(data.error);
+						}
+						else {
+							console.log('triggering game:created');
+							that.trigger("game:created", data);
+						}
+					}
+				});
+			};
 		},
 
 		getGames: function() {
