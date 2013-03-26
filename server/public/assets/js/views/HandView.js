@@ -16,10 +16,6 @@ define([
 			});
 		},
 
-		events: {
-			
-		},
-
 		styleTile: function(tile) {
 			tile.tileView.$el
 				.draggable({

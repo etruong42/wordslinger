@@ -3,6 +3,7 @@
 ==TODOs==
 
 ===High(-ish) priority===
+!!Support websockets!!
 Improve UX
 	-indicate turns
 	-status message
@@ -10,7 +11,6 @@ Improve UX
 		"{opponent} played {move} for {points} points! Make your move."
 Remove/resign from games
 Better error alerts.
-Support websockets.
 Make mobile friendly.
 Add functionalities
 	-challenge
@@ -39,3 +39,10 @@ non-score tile modifiers
 =====Effects=====
 -player skips next turn (Time Walk)
 -steal some percentage of points
+
+Sockets
+connect
+clients[username]
+
+on game move
+update clients[players] (ifdef)

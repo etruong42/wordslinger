@@ -24,6 +24,10 @@ define([
 				.appendTo(options.$el);
 		},
 
+		updateHand: function(data) {
+			this.board.getActiveHand().addTile(data.tiles);
+		},
+
 		initMove: function() {
 			this.currentMove = new Move();
 			this.currentMove.board = this.board;
@@ -81,7 +85,6 @@ define([
 			this.incPlayerScore(moveScore);
 			this.currentMove.set({gameId: this.get("gameId")});
 			this.submitMove(this.currentMove.toJSON());
-			this.initMove(); //init next move
 
 			this.board.getActiveHand()
 				.updateCurrentMoveScore(0)
@@ -89,6 +92,8 @@ define([
 
 			this.board.addMove(this.currentMove);
 			this.playerPanelView.setIsYourTurn(false);
+
+			this.initMove(); //init next move
 		},
 
 		setPlayerScore: function(val) {

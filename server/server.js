@@ -1,8 +1,10 @@
 var express = require('express'),
-	//everyauth = require('everyauth');
 	wordslingerRoute = require('./routes/wordslingerRoute.js'),
+	wordslingerSocket = require('./lib/wordslinger-socket.js'),
+	wordslingerMongo = require('./lib/wordslinger-mongo.js'),
 	http = require('http'),
-	MongoStore = require('connect-mongo')(express);
+	MongoStore = require('connect-mongo')(express),
+	io = require('socket.io');
 var app = express();
 
 var accessChecker = function(req, res, next) {
@@ -54,6 +56,33 @@ app.get('/admin/games', wordslingerRoute.dbgame);
 app.post('/api/player/login', wordslingerRoute.login);
 app.post('/api/player/signup', wordslingerRoute.signup);
 
-http.createServer(app).listen(app.get('port'), function(){
-	console.log("Express server listening on port " + app.get('port'));
+var server = http.createServer(app)
+	.listen(app.get('port'), function(){
+		console.log("Express server listening on port " +
+			app.get('port'));
+	});
+
+var iolistener = io.listen(server);
+
+module.exports.iolistener = iolistener;
+
+iolistener.sockets.on('connection', function (socket) {
+	var emitFunction = function(err, val) {
+		if(!err) {
+			socket.emit(val);
+		}
+	};
+	socket.on('login', function(data) {
+		wordslingerMongo.authenticate(
+			data.email,
+			data.password,
+			function(err, val) {
+				if(!err) {
+					socket.emit('loginresponse', val);
+				} else {
+					console.log(err);
+				}
+			}
+		);
+	});
 });

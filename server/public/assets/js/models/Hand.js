@@ -8,9 +8,6 @@ define([
 
 		initialize: function() {
 			this.handView = new HandView({collection: this});
-			//this.visibilityControl = new HideHandView({hand: this});
-			//this.visible = true;
-			//this.handView.$el.hide();
 			this.selectedTile = null;
 		},
 
@@ -54,6 +51,18 @@ define([
 			this.push(grabbag.pop());
 		},
 
+		addTile: function(tile) {
+			if(tile instanceof Array) {
+				var tiles = tile.map(function(a) {return new Tile(a);});
+				for(var tilekey in tiles) {
+					this.push(tiles[tilekey]);
+				}
+			} else {
+				this.push(new Tile(tile));
+			}
+			this.handView.render();
+		},
+
 		endTurn: function(moveTiles) {
 			_.each(moveTiles, function(a) {a.unselect();});
 			_.each(moveTiles, function(a) {a.setDraggability(false);});
@@ -62,9 +71,7 @@ define([
 		},
 
 		updateCurrentMoveScore: function(movescore) {
-			//console.log("updating: " + movescore);
 			if(movescore) {
-				
 				var movescoreEl = this.handView.getMovescoreEl();
 				movescoreEl.show();
 				movescoreEl.text("+" + movescore);

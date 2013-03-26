@@ -1,172 +1,21 @@
-var mongoose = require('mongoose');
-var _ = require('underscore');
+var mongoose = require('mongoose'),
+	_ = require('underscore'),
+	mongowrapper = require('../lib/wordslinger-mongo');
 
-var tileArray = [
-	{letter:"A", points:1, count:9},
-	{letter:"B", points:3, count:2},
-	{letter:"C", points:3, count:2},
-	{letter:"D", points:1, count:5},
-	{letter:"E", points:1, count:12},
-	{letter:"F", points:4, count:2},
-	{letter:"G", points:1, count:5},
-	{letter:"H", points:4, count:2},
-	{letter:"I", points:1, count:9},
-	{letter:"J", points:8, count:1},
-	{letter:"K", points:5, count:1},
-	{letter:"L", points:1, count:4},
-	{letter:"M", points:3, count:2},
-	{letter:"N", points:1, count:6},
-	{letter:"O", points:1, count:8},
-	{letter:"P", points:3, count:2},
-	{letter:"Q", points:10, count:1},
-	{letter:"R", points:1, count:6},
-	{letter:"S", points:1, count:4},
-	{letter:"T", points:1, count:6},
-	{letter:"U", points:1, count:4},
-	{letter:"V", points:4, count:2},
-	{letter:"W", points:4, count:2},
-	{letter:"X", points:8, count:1},
-	{letter:"Y", points:4, count:2},
-	{letter:"Z", points:10, count:1},
-	{letter:"", points:0, count:2}
-];
-
-var handSize = 7;
-
-mongoose.connect('mongodb://localhost/wordslinger_database');
-
-var GameSchema = new mongoose.Schema({
-	activePlayerIndex: Number,
-	moves: [
-		{
-			playerId: mongoose.Schema.Types.ObjectId,
-			points: Number,
-			tiles: [
-				{
-					letter: String,
-					points: Number,
-					//tiles with no positions are swapped
-					//that is, weren't put on the board
-					position:
-					{
-						x: Number,
-						y: Number
-					}
-				}
-			],
-			tilesGained : [
-				{
-					letter: String,
-					points: Number
-				}
-			]
-		}
-	],
-	players: [
-		{
-			playerId: mongoose.Schema.Types.ObjectId,
-			startingHand: [
-				{
-					letter: String,
-					points: Number
-				}
-			],
-			currentHand: [
-				{
-					letter:String,
-					points: Number
-				}
-			]
-		}
-	],
-	grabbag: [
-		{
-			letter: String,
-			points: Number
-		}
-	]
-});
-
-exports.GetGameModel = function() {
-	return GameModel;
-};
-
-var GameModel = mongoose.model('Game', GameSchema);
-var getPlayerDoc = function(game, playerId) {
-	var curPlayers = game.players.filter(function(player) {
-		return player.playerId.toString() === playerId;
-	});
-	if(!curPlayers) {
-		console.log("Error: Can't find player in game: " + playerId);
-		return;
-	}
-	return curPlayers[0];
-};
-var PlayerSchema = new mongoose.Schema({
-	email: String,
-	username: String,
-	password: String
-});
-
-exports.GetPlayerModel = function() {
-	return PlayerModel;
-};
-
-var PlayerModel = mongoose.model('Player', PlayerSchema);
-
-var toJSON = function(obj) {
-	return obj.toJSON();
-};
+var GameModel = mongowrapper.GetGameModel();
+var PlayerModel = mongowrapper.GetPlayerModel();
 
 exports.move = function(req, res) {
-	GameModel.findById(req.body.gameId, function(err, game) {
-		if(err) {
-			return console.log(err);
-		}
-		var activeGamePlayer = game.players[game.activePlayerIndex];
-		if(!activeGamePlayer ||
-			activeGamePlayer.playerId.toString() !== req.session.playerId)
-		{
-			res.send({route: "notYourTurn"});
-			return;
-		}
-		var grabbedTiles = [];
-		for(var i = 0; i < req.body.tiles.length; i++) {
-			grabbedTiles.push(game.grabbag.pop());
-		}
-		game.moves.push({
-			playerId: req.session.playerId,
-			tiles: req.body.tiles,
-			points: req.body.points,
-			tilesGained: grabbedTiles
-		});
-		if(game.activePlayerIndex === 0 ||
-			game.activePlayerIndex < game.players.length - 1)
-		{
-			game.activePlayerIndex++;
-		} else {
-			game.activePlayerIndex = 0;
-		}
-		var curPlayer = getPlayerDoc(game, req.session.playerId);
-		var playedIds = req.body.tiles.map(
-			function(a){return a._id.toString();}
-		);
-		var playedTiles = curPlayer.currentHand.filter(
-			function(a){return playedIds.indexOf(a._id.toString()) > -1;}
-		);
-
-		for(var playedTileKey = 0; playedTileKey < playedTiles.length; playedTileKey++) {
-			playedTiles[playedTileKey].remove();
-		}
-		grabbedTiles.forEach(function(a){curPlayer.currentHand.push(a);});
-
-		game.save(function(err, savedGame) {
+	mongowrapper.addMove(req.session.playerId,
+		req.body.gameId,
+		req.body.tiles,
+		req.body.points,
+		function(err, val) {
 			if(err) {
 				return console.log(err);
 			}
-			res.send({tiles: grabbedTiles});
+			res.send(val);
 		});
-	});
 };
 
 exports.dbgame = function(req, res) {
@@ -184,108 +33,49 @@ var getTiles = function(tileObj) {
 };
 
 exports.game = function(req, res) {
-	if(!req.body.gameId && req.session.playerId) {
-		PlayerModel.findOne({email: req.body.players}, function(err, opponent) {
-			if(err) {
-				return console.log(err);
+	mongowrapper.createOrRetrieveGame({
+		playerId: req.session.playerId,
+		gameId: req.body.gameId,
+		opponents: req.body.players
+	}, function(err, val) {
+			if(!err) {
+				res.send(val);
 			}
-			if(!opponent) {
-				res.send({
-					error: "Player does not exist!"
-				});
-			}
-			//no gameId from a logged in player means create
-			var newGame = new GameModel();
-			var grabbagTiles = _.shuffle(_.flatten(tileArray.map(getTiles)));
-			var hand = [];
-			for(var i = 0; i < handSize; i++) {
-				hand.push(grabbagTiles.pop());
-			}
-			newGame.players.push({
-				playerId: req.session.playerId,
-				startingHand: hand,
-				currentHand: hand
-			});
-
-			hand = [];
-
-			for(i = 0; i < handSize; i++) {
-				hand.push(grabbagTiles.pop());
-			}
-
-			newGame.players.push({
-				playerId: opponent._id,
-				startingHand: hand,
-				currentHand: hand
-			});
-			newGame.activePlayerIndex = 0;
-			newGame.grabbag = grabbagTiles;
-			newGame.save(function(err, game) {
-				res.send({
-					gameId: game.id,
-					playerHand: game.players[0].currentHand
-				});
-			});
-		});
-	} else if(req.body.gameId && req.session.playerId) {
-		//request with a gameId from a logged in player means retrieve
-		//TODO: add permissions
-		var curPlayerId = req.session.playerId;
-		GameModel.findById(req.body.gameId, function(err, game) {
-			if(err) {
-				return console.log(err);
-			}
-			var curPlayer = getPlayerDoc(game, curPlayerId);
-			if(!curPlayer) {
-				res.send({route: "noaccess"});
-			}
-			var isYourTurn = game.players[game.activePlayerIndex].playerId.toString() ===
-				req.session.playerId;
-			res.send({
-				yourId: curPlayer.playerId,
-				isYourTurn: isYourTurn,
-				moves: game.moves,
-				playerHand: curPlayer.currentHand
-			});
-		});
-	} else if(!req.session.playerId) {
-		res.send({route: "login"});
-	}
+			console.log(err);
+		}
+	);
 };
 
 exports.games = function(req, res) {
-	if(req.session.playerId) {
-		GameModel.find({'players.playerId': req.session.playerId},
-			function(err, games) {
-				res.send(games);
+	mongowrapper.getGames(
+		req.session.playerId,
+		function(err, val){
+			if(!err) {
+				res.send(val);
 			}
-		);
-	} else {
-		res.send({route: "login"});
-	}
+			console.log(err);
+		});
 };
 
 exports.login = function(req, res) {
 	var email = req.body.email;
 	var password = req.body.password;
-	PlayerModel.findOne({email: email, password: password}, function(err, player) {
-		if(err) {
-			return console.log(err);
+	mongowrapper.authenticate(email, password,
+		function(err, player) {
+			if(!err) {
+				req.session.email = player.email;
+				req.session.playerId = player._id;
+				res.send({
+					email: player.email
+				});
+			} else {
+				console.log(err);
+				res.send( {
+					error: "Incorrect credentials for " + email
+				});
+			}
 		}
-		if(player) {
-			req.session.email = player.email;
-			req.session.playerId = player._id;
-			res.send( {
-				email: player.email
-			});
-		} else {
-			console.log("Incorrect credentials for {" + email +
-			"}");
-			res.send( {
-				error: "Incorrect credentials for " + email
-			});
-		}
-	});
+	);
 };
 
 exports.signup = function(req, res) {
