@@ -1,4 +1,4 @@
-define(function() {
+define(['AppSocket'], function(AppSocket) {
 	var PlayerSignupView = Backbone.View.extend({
 		tagName: "div",
 
@@ -47,28 +47,12 @@ define(function() {
 
 		signup: function () {
 			//$('.alert-error').hide(); // Hide any errors on a new submit
-			var url = '/api/player/signup';
 			var formValues = {
 				email: this.$email.val(),
 				password: this.$password.val(),
 				confirmpassword: this.$confirmPassword.val()
 			};
-
-			$.ajax({
-				url:url,
-				type:'POST',
-				dataType: "json",
-				data: formValues,
-				success:function (data) {
-					if(data.error) {  // If there is an error, show the error messages
-						//$('.alert-error').text(data.error.text).show();
-						alert(data.error);
-					}
-					else {
-						
-					}
-				}
-			});
+			AppSocket.emit('signup', formValues);
 		}
 	});
 	return PlayerSignupView;

@@ -1,11 +1,33 @@
+API
+login
+{
+	email
+	password
+}
+{
+	_id
+}
+
+signup
+{
+	email
+	password
+	confirmpassword
+}
+{
+	_id
+}
+
 
 
 ==TODOs==
 
 ===High(-ish) priority===
-!!Support websockets!!
+!!Add analytics!!
+Support websockets
 Improve UX
 	-indicate turns
+		-highlight moves just played
 	-status message
 		"Waiting for {opponent} to make their move"
 		"{opponent} played {move} for {points} points! Make your move."

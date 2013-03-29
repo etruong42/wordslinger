@@ -311,16 +311,18 @@ exports.authenticate = function(email, password, callback) {
 
 exports.signup = function(email, password, confirmpassword, callback) {
 	if(password !== confirmpassword) {
+		callback(null, {error: "Passwords do not match!"});
 		return;
 	}
 	PlayerModel.findOne({email: email}, function(err, player) {
 		if(err) {
-			return console.log(err);
+			callback(err);
+			return;
 		}
 		if(player) {
 			console.log("Player email {" + player.email +
 			"} already exists");
-			res.send({
+			callback(null, {
 				error: "Account for " + email + " already exists!"
 			});
 		} else {
@@ -329,11 +331,7 @@ exports.signup = function(email, password, confirmpassword, callback) {
 				password: password});
 
 			newPlayer.save(function(err, savedPlayer) {
-				req.session.email = savedPlayer.email;
-				req.session.playerId = savedPlayer._id;
-				res.send( {
-					email: savedPlayer.email
-				});
+				callback(null, savedPlayer);
 			});
 		}
 	});

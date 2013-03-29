@@ -8,14 +8,6 @@ var express = require('express'),
 	ioSession = require('socket.io-session'),
 	store;
 var app = express();
-
-var accessChecker = function(req, res, next) {
-	if(req.session.playerId) {
-		next();
-	} else {
-		res.redirect('/');
-	}
-};
 var sessionSecret = 'secret key';
 var sessionKey = 'wordslinger.sid';
 app.configure(function() {
@@ -77,6 +69,25 @@ iolistener.sockets.on('connection', function (socket) {
 	if(socket.handshake.session.playerId) {
 		socket.emit('playerId', socket.handshake.session.playerId);
 	}
+	socket.on('signup', function(data) {
+		wordslingerMongo.signup(
+			data.email,
+			data.password,
+			data.confirmpassword,
+			function(err, val) {
+				if(!err) {
+					if(!val.error) {
+						socket.handshake.session.playerId = val._id.toString();
+						socket.handshake.session.save();
+						socket.emit('loginresponse', {_id: val._id});
+					}
+					socket.emit('loginresponse', val);
+				} else {
+					console.log(err);
+				}
+			}
+		);
+	});
 	socket.on('login', function(data) {
 		wordslingerMongo.authenticate(
 			data.email,
@@ -85,7 +96,6 @@ iolistener.sockets.on('connection', function (socket) {
 				if(!err) {
 					socket.handshake.session.playerId = val._id.toString();
 					socket.handshake.session.save();
-					socket.playerId = val._id.toString();
 					socket.emit('loginresponse', {_id: val._id});
 				} else {
 					console.log(err);

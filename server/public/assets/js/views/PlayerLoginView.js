@@ -39,7 +39,6 @@ define(['AppSocket'], function(AppSocket) {
 			AppSocket.on('loginresponse', function(data) {
 				console.log(["Login request details: ", data]);
 				AppSocket.wordslinger.playerId = data._id;
-				console.log("appsocket!!!"+AppSocket.wordslinger.playerId);
 				if(data.error) {
 					// If there is an error, show the error messages
 					//$('.alert-error').text(data.error.text).show();
@@ -68,7 +67,6 @@ define(['AppSocket'], function(AppSocket) {
 				password: this.$password.val()
 			};
 			AppSocket.emit('login', credentials);
-			//var url = '/api/player/login';
 		}
 	});
 	return PlayerLoginView;
