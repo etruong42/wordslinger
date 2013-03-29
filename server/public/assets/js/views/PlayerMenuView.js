@@ -66,19 +66,20 @@ define(['AppSocket'], function(AppSocket) {
 
 		renderGamesMenu: function(data) {
 			var that = this;
-			var gameId;
-			var selectGame = function() {
-				console.log("selected game: " + gameId);
-				that.trigger("game:selected", gameId);
+			var selectGame = function(gameId) {
+				return function() {
+					console.log("selected game: " + gameId);
+					that.trigger("game:selected", gameId);
+				};
 			};
 			this.$gamesmenu = $("<div class='gamesmenu'></div>");
 			for(var i=0; i < data.length; i++) {
 				var $gamediv = $("<div class='game'></div>");
 				var gameData = data[i];
-				gameId = gameData._id;
+				var gameId = gameData._id;
 				var $gamedivbutton =
 					$("<input type='button' value='Play Game!' />");
-				$gamedivbutton.click(selectGame);
+				$gamedivbutton.click(selectGame(gameId));
 				$gamediv
 					.append($gamedivbutton)
 					.appendTo(this.$gamesmenu);
