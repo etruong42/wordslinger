@@ -94,7 +94,7 @@ exports.GetGameModel = function() {
 var GameModel = mongoose.model('Game', GameSchema);
 var getPlayerDoc = function(game, playerId) {
 	var curPlayers = game.players.filter(function(player) {
-		return player.playerId.toString() === playerId;
+		return player.playerId.toString() === playerId.toString();
 	});
 	if(!curPlayers) {
 		console.log("Error: Can't find player in game: " + playerId);
@@ -122,12 +122,14 @@ exports.addMove = function(playerId, gameId, tiles, points, callback) {
 	GameModel.findById(gameId, function(err, game) {
 		if(err) {
 			callback(err);
+			return;
 		}
 		var activeGamePlayer = game.players[game.activePlayerIndex];
 		if(!activeGamePlayer ||
 			activeGamePlayer.playerId.toString() !== playerId)
 		{
 			callback(null, {route: "notYourTurn"});
+			return;
 		}
 		var grabbedTiles = [];
 		for(var i = 0; i < tiles.length; i++) {
@@ -162,8 +164,14 @@ exports.addMove = function(playerId, gameId, tiles, points, callback) {
 		game.save(function(err, savedGame) {
 			if(err) {
 				callback(err);
+				return;
 			}
-			callback(null, {tiles: grabbedTiles});
+			callback(null,
+				{
+					tiles: grabbedTiles,
+					activePlayerId: game.players[game.activePlayerIndex].playerId
+				}
+			);
 		});
 	});
 };
@@ -225,11 +233,13 @@ exports.createOrRetrieveGame = function(options, callback) {
 		PlayerModel.findOne({email: options.opponents}, function(err, opponent) {
 			if(err) {
 				callback(err, null);
+				return;
 			}
 			if(!opponent) {
 				callback(null, {
 					error: "Player does not exist!"
 				});
+				return;
 			}
 			createGame(options.playerId, opponent._id).save(function(err, game) {
 				callback(null, {
@@ -237,6 +247,7 @@ exports.createOrRetrieveGame = function(options, callback) {
 					playerHand: game.players[0].currentHand,
 					isYourTurn: true
 				});
+				return;
 			});
 		});
 	} else if(options.gameId && options.playerId) {
@@ -244,22 +255,26 @@ exports.createOrRetrieveGame = function(options, callback) {
 		GameModel.findById(options.gameId, function(err, game) {
 			if(err) {
 				callback(err);
+				return;
 			}
 			var curPlayer = getPlayerDoc(game, curPlayerId);
 			if(!curPlayer) {
 				callback(null, {route: "noaccess"});
+				return;
 			}
 			var isYourTurn = game.players[game.activePlayerIndex].playerId.toString() ===
-				options.playerId;
+				options.playerId.toString();
 			callback(null, {
 				yourId: curPlayer.playerId,
 				isYourTurn: isYourTurn,
 				moves: game.moves,
 				playerHand: curPlayer.currentHand
 			});
+			return;
 		});
 	} else if(!options.playerId) {
 		callback(null, {route: "login"});
+		return;
 	}
 };
 
@@ -268,10 +283,12 @@ exports.getGames = function(playerId, callback) {
 		GameModel.find({'players.playerId': playerId},
 			function(err, games) {
 				callback(err, games);
+				return;
 			}
 		);
 	} else {
 		callback(null, {route: "login"});
+		return;
 	}
 };
 
@@ -279,12 +296,15 @@ exports.authenticate = function(email, password, callback) {
 	PlayerModel.findOne({email: email, password: password}, function(err, player) {
 		if(err) {
 			callback(err, null);
+			return;
 		}
 		if(player) {
 			callback(null, player);
+			return;
 		} else {
 			callback("No account with entered credentials {" +
 				email + "}", null);
+			return;
 		}
 	});
 };

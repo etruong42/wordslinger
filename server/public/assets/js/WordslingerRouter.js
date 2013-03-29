@@ -4,9 +4,10 @@ define([
 	'views/PlayerMenuView',
 	'models/WordslingerGame',
 	'models/Board',
-	'views/BoardView'
+	'views/BoardView',
+	'AppSocket'
 	], function(PlayerLoginView, PlayerSignupView, PlayerMenuView,
-		WordslingerGame, Board, BoardView){
+		WordslingerGame, Board, BoardView, AppSocket){
 	var WordslingerRouter = Backbone.Router.extend({
 		routes: {
 			"player/:id": "showPlayer",
@@ -18,6 +19,22 @@ define([
 
 		initialize: function() {
 			this.$container = $(".container");
+			var that = this;
+			AppSocket.on('getgameresponse', function (data) {
+				console.log(["getgameresponse ", data]);
+				if(data.error) {
+					// If there is an error, show the error messages
+					//$('.alert-error').text(data.error.text).show();
+					alert(data.error);
+				}
+				else if(data.route) {
+					that.redirectToLogin(data);
+				}
+				else {
+					console.log('triggering gamestatus:retrieved');
+					that.trigger("gamestatus:retrieved", data);
+				}
+			});
 		},
 
 		showPlayer: function(id) {
@@ -79,27 +96,8 @@ define([
 		getGame: function (gameData) {
 			//$('.alert-error').hide(); // Hide any errors on a new submit
 			var url = '/api/wordslinger/game';
-			var that = this;
-			$.ajax({
-				url: url,
-				type: 'POST',
-				dataType: "json",
-				data: gameData,
-				success: function (data) {
-					console.log(["/api/wordslinger/game: ", data]);
-					if(data.error) {  // If there is an error, show the error messages
-						//$('.alert-error').text(data.error.text).show();
-						alert(data.error);
-					}
-					else if(data.route) {
-						that.redirectToLogin(data);
-					}
-					else {
-						console.log('triggering gamestatus:retrieved');
-						that.trigger("gamestatus:retrieved", data);
-					}
-				}
-			});
+			//gameData.gameId
+			AppSocket.emit('getgame', gameData);
 		},
 
 		redirectToLogin: function(data) {

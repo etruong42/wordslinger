@@ -59,6 +59,11 @@ define([
 			this.get("tiles").push(tileModel);
 		},
 
+		addTiles: function(tiles) {
+			var self = this;
+			tiles.forEach(function(a){self.addTile(a);});
+		},
+
 		nextHand: function() {
 			this.disableActiveHand();
 			this._activeHandIndex++;

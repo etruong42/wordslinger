@@ -38,7 +38,8 @@ define(['AppSocket'], function(AppSocket) {
 			var that = this;
 			AppSocket.on('loginresponse', function(data) {
 				console.log(["Login request details: ", data]);
-
+				AppSocket.wordslinger.playerId = data._id;
+				console.log("appsocket!!!"+AppSocket.wordslinger.playerId);
 				if(data.error) {
 					// If there is an error, show the error messages
 					//$('.alert-error').text(data.error.text).show();
@@ -62,31 +63,12 @@ define(['AppSocket'], function(AppSocket) {
 		},
 
 		login: function () {
-			//$('.alert-error').hide(); // Hide any errors on a new submit
-			//var url = '/api/player/login';
 			var credentials = {
 				email: this.$email.val(),
 				password: this.$password.val()
 			};
 			AppSocket.emit('login', credentials);
-			//$.ajax({
-				//url: url,
-				//type: 'POST',
-				//dataType: "json",
-				//data: credentials,
-				//success: function (data) {
-					//console.log(["Login request details: ", data]);
-//
-					//if(data.error) {  // If there is an error, show the error messages
-						////$('.alert-error').text(data.error.text).show();
-						//alert(data.error);
-					//}
-					//else {
-						//console.log('triggering player:loggedin');
-						//that.trigger("player:loggedin", data);
-					//}
-				//}
-			//});
+			//var url = '/api/player/login';
 		}
 	});
 	return PlayerLoginView;

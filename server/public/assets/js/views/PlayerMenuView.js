@@ -1,9 +1,34 @@
-define(function() {
+define(['AppSocket'], function(AppSocket) {
 	var PlayerMenuView = Backbone.View.extend({
 		tagName: "div",
 
 		initialize: function() {
 			this.on("game:error", this.alertError);
+			var that = this;
+			AppSocket.on('gamesresponse', function (data) {
+				console.log(["Games request details: ", data]);
+
+				if(data.error) {
+					alert(data.error);
+				}
+				else {
+					console.log('triggering games:retrieved');
+					that.trigger("games:retrieved", data);
+				}
+			});
+			AppSocket.on('newgameresponse', function (data) {
+				console.log(["New game request details: ", data]);
+
+				if(data.error) {
+					// If there is an error, show the error messages
+					//$('.alert-error').text(data.error.text).show();
+					alert(data.error);
+				}
+				else {
+					console.log('triggering game:created');
+					that.trigger("game:created", data);
+				}
+			});
 		},
 
 		events: {
@@ -75,57 +100,21 @@ define(function() {
 
 		newGame: function ($playerInvite) {
 			//$('.alert-error').hide(); // Hide any errors on a new submit
-			var url = '/api/wordslinger/game';
-			var that = this;
+			//var url = '/api/wordslinger/game';
 			return function() {
 				var players = $playerInvite.val();
 				if(!players) {
-					that.trigger("game:error", "Please enter the opponent's email address");
+					that.trigger("game:error",
+						"Please enter the opponent's email address");
 					return;
 				}
-				$.ajax({
-					url: url,
-					type: 'POST',
-					dataType: "json",
-					data: {
-						players: players
-					},
-					success: function (data) {
-						console.log(["New game request details: ", data]);
-
-						if(data.error) {  // If there is an error, show the error messages
-							//$('.alert-error').text(data.error.text).show();
-							alert(data.error);
-						}
-						else {
-							console.log('triggering game:created');
-							that.trigger("game:created", data);
-						}
-					}
-				});
+				AppSocket.emit('newgame', {players: players});
 			};
 		},
 
 		getGames: function() {
-			var url = '/api/wordslinger/games';
-			var that = this;
-
-			$.ajax({
-				url: url,
-				type: 'GET',
-				dataType: "json",
-				success: function (data) {
-					console.log(["Games request details: ", data]);
-
-					if(data.error) {
-						alert(data.error);
-					}
-					else {
-						console.log('triggering games:retrieved');
-						that.trigger("games:retrieved", data);
-					}
-				}
-			});
+			AppSocket.emit('games', {});
+			//var url = '/api/wordslinger/games';
 		}
 	});
 

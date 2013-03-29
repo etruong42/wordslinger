@@ -3,11 +3,13 @@ define([
 	'models/Board',
 	'views/BoardView',
 	'models/Move',
-	'views/PlayerPanelView'
-	], function(Hand, Board, BoardView, Move, PlayerPanelView){
+	'views/PlayerPanelView',
+	'AppSocket'
+	], function(Hand, Board, BoardView, Move, PlayerPanelView, AppSocket){
 	var WordslingerGame = Backbone.Model.extend({
 		url: "/api/wordslinger/game",
 		initialize: function(options) {
+			var self = this;
 			this.set("currentHandIndex", 0);
 			this.set("handsize", 7);
 			this.on("move:submitted", this.updateHand);
@@ -22,10 +24,39 @@ define([
 			$player
 				.append(this.playerPanelView.$el)
 				.appendTo(options.$el);
+			var that = this;
+			AppSocket.on('submitmoveresponse', function (data) {
+				console.log(["Submit move data: ", data]);
+
+				if(data.error) {  // If there is an error, show the error messages
+					//$('.alert-error').text(data.error.text).show();
+					alert(data.error);
+				}
+				else {
+					console.log('triggering move:submitted');
+					that.trigger("move:submitted", data);
+				}
+			});
+
+			AppSocket.on('incomingmove', function(data) {
+				console.log(["incoming move", data]);
+
+				self.updateBoard(data);
+			});
 		},
 
 		updateHand: function(data) {
 			this.board.getActiveHand().addTile(data.tiles);
+		},
+
+		updateBoard: function(data) {
+			if(!this.moved) {
+				this.board.addTiles(data.tiles);
+			} else {
+				this.moved--;
+			}
+			this.playerPanelView.setIsYourTurn(
+				data.activePlayerId === AppSocket.wordslinger.playerId);
 		},
 
 		initMove: function() {
@@ -93,6 +124,8 @@ define([
 			this.board.addMove(this.currentMove);
 			this.playerPanelView.setIsYourTurn(false);
 
+			this.moved = 1;
+
 			this.initMove(); //init next move
 		},
 
@@ -116,27 +149,7 @@ define([
 		},
 
 		submitMove: function(move) {
-			var url = '/api/wordslinger/move';
-			var that = this;
-
-			$.ajax({
-				url: url,
-				type: 'POST',
-				dataType: "json",
-				data: move,
-				success: function (data) {
-					console.log(["Submit move data: ", data]);
-
-					if(data.error) {  // If there is an error, show the error messages
-						//$('.alert-error').text(data.error.text).show();
-						alert(data.error);
-					}
-					else {
-						console.log('triggering move:submitted');
-						that.trigger("move:submitted", data);
-					}
-				}
-			});
+			AppSocket.emit('submitmove', move);
 		}
 	});
 	return WordslingerGame;

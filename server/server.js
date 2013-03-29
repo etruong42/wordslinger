@@ -4,7 +4,9 @@ var express = require('express'),
 	wordslingerMongo = require('./lib/wordslinger-mongo.js'),
 	http = require('http'),
 	MongoStore = require('connect-mongo')(express),
-	io = require('socket.io');
+	io = require('socket.io'),
+	ioSession = require('socket.io-session'),
+	store;
 var app = express();
 
 var accessChecker = function(req, res, next) {
@@ -14,17 +16,19 @@ var accessChecker = function(req, res, next) {
 		res.redirect('/');
 	}
 };
-
+var sessionSecret = 'secret key';
+var sessionKey = 'wordslinger.sid';
 app.configure(function() {
 	app.set('port', process.env.PORT || 3000);
 	app.use(express.favicon());
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.session({
-		secret: 'this is the session secret',
-		store: new MongoStore({
+		secret: sessionSecret,
+		store: store = new MongoStore({
 			db: "wordslinger_database"
-		})
+		}),
+		key: sessionKey
 	}));
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
@@ -66,23 +70,95 @@ var iolistener = io.listen(server);
 
 module.exports.iolistener = iolistener;
 
+iolistener.set('authorization',
+	ioSession(express.cookieParser(sessionSecret), store, sessionKey));
+
 iolistener.sockets.on('connection', function (socket) {
-	var emitFunction = function(err, val) {
-		if(!err) {
-			socket.emit(val);
-		}
-	};
+	if(socket.handshake.session.playerId) {
+		socket.emit('playerId', socket.handshake.session.playerId);
+	}
 	socket.on('login', function(data) {
 		wordslingerMongo.authenticate(
 			data.email,
 			data.password,
 			function(err, val) {
 				if(!err) {
-					socket.emit('loginresponse', val);
+					socket.handshake.session.playerId = val._id.toString();
+					socket.handshake.session.save();
+					socket.playerId = val._id.toString();
+					socket.emit('loginresponse', {_id: val._id});
+				} else {
+					console.log(err);
+					socket.emit('loginresponse',
+						{
+							error: "Incorrect credentials for " + data.email
+						}
+					);
+				}
+			}
+		);
+	});
+	socket.on('games', function(data) {
+		if(!socket.handshake.session.playerId) {
+			socket.emit("gamesresponse", {route: "login"});
+		} else {
+			wordslingerMongo.getGames(socket.handshake.session.playerId, function(err, val) {
+				if(!err) {
+					socket.emit("gamesresponse", val);
+				} else {
+					console.log(err);
+				}
+			});
+		}
+	});
+	socket.on('newgame', function(data) {
+		wordslingerMongo.createOrRetrieveGame(
+			{playerId: socket.handshake.session.playerId, opponents: data.players},
+			function(err, val) {
+				if(!err) {
+					socket.emit('newgameresponse', val);
 				} else {
 					console.log(err);
 				}
 			}
 		);
+	});
+	socket.on('submitmove', function(data) {
+		wordslingerMongo.addMove(
+			socket.handshake.session.playerId,
+			data.gameId,
+			data.tiles,
+			data.points,
+			function(err, val) {
+				if(!err) {
+					socket.emit('submitmoveresponse', val);
+					if(!val.error && !val.route) {
+						iolistener.sockets
+							.in('game' + data.gameId)
+							.emit('incomingmove',
+								{
+									tiles: data.tiles,
+									activePlayerId: val.activePlayerId
+								}
+							);
+					}
+				} else {
+					console.log(err);
+				}
+			});
+	});
+	socket.on('getgame', function(data) {
+		wordslingerMongo.createOrRetrieveGame(
+			{playerId: socket.handshake.session.playerId, gameId: data.gameId},
+			function(err, val) {
+				if(!err) {
+					if(!val.error) {
+						socket.join('game' + data.gameId);
+					}
+					socket.emit('getgameresponse', val);
+				} else {
+					console.log(err);
+				}
+			});
 	});
 });
