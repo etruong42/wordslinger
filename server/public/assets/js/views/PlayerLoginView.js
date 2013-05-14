@@ -5,16 +5,16 @@ define(['AppSocket'], function(AppSocket) {
 		render: function() {
 			if(!this.rendered) {
 				this.$email =
-					$("<input type='text' class='email' />");
+					$("<input type='text' placeholder='Email' />");
 				this.$emailDiv = $("<div></div>")
-					.append("<span>Email: </span>")
+					//.append("<span>Email: </span>")
 					.append(this.$email);
 				this.$email.keypress($.proxy(this.textEnter, this));
 
 				this.$password =
-					$("<input type='password' class='password' />");
+					$("<input type='password' Placeholder='Password' />");
 				this.$passwordDiv = $("<div></div>")
-					.append("<span>Password: </span>")
+					//.append("<span>Password: </span>")
 					.append(this.$password);
 				this.$password.keypress($.proxy(this.textEnter, this));
 
@@ -38,7 +38,7 @@ define(['AppSocket'], function(AppSocket) {
 			var that = this;
 			AppSocket.on('loginresponse', function(data) {
 				console.log(["Login request details: ", data]);
-				AppSocket.wordslinger.playerId = data._id;
+				AppSocket.wordslinger.playerInfo.playerId = data._id;
 				if(data.error) {
 					// If there is an error, show the error messages
 					//$('.alert-error').text(data.error.text).show();

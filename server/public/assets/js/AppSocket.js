@@ -1,8 +1,7 @@
 define([], function() {
 	var socket = io.connect('/');
-	socket.wordslinger = {};
-	socket.on('playerId', function(data){
-		socket.wordslinger.playerId = data;
-	});
+	socket.wordslinger = socket.wordslinger || {};
+	socket.wordslinger.playerInfo =
+		socket.wordslinger.playerInfo || {};
 	return socket;
 });

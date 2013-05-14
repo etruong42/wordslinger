@@ -293,20 +293,22 @@ exports.getGames = function(playerId, callback) {
 };
 
 exports.authenticate = function(email, password, callback) {
-	PlayerModel.findOne({email: email, password: password}, function(err, player) {
-		if(err) {
-			callback(err, null);
-			return;
+	PlayerModel.findOne({email: email, password: password},
+			function(err, player) {
+			if(err) {
+				callback(err, null);
+				return;
+			}
+			if(player) {
+				callback(null, player);
+				return;
+			} else {
+				callback("No account with entered credentials {" +
+					email + "}", null);
+				return;
+			}
 		}
-		if(player) {
-			callback(null, player);
-			return;
-		} else {
-			callback("No account with entered credentials {" +
-				email + "}", null);
-			return;
-		}
-	});
+	);
 };
 
 exports.signup = function(email, password, confirmpassword, callback) {

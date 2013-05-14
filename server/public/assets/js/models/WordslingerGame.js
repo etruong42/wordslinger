@@ -56,7 +56,7 @@ define([
 				this.moved--;
 			}
 			this.playerPanelView.setIsYourTurn(
-				data.activePlayerId === AppSocket.wordslinger.playerId);
+				data.activePlayerId === AppSocket.wordslinger.playerInfo.playerId);
 		},
 
 		initMove: function() {

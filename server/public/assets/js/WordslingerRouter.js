@@ -14,12 +14,16 @@ define([
 			"player": "showLoggedInPlayer",
 			"login" : "showLogin",
 			"game/:id": "showGame",
-			"": "showLogin"
+			"": "showLoggedInPlayer"
 		},
 
 		initialize: function() {
-			this.$container = $(".container");
+			this.$container = $(".gamecontainer");
 			var that = this;
+			AppSocket.on('playerInfo', function(data){
+				AppSocket.wordslinger.playerInfo = data;
+				that.navigate("player", {trigger: true});
+			});
 			AppSocket.on('getgameresponse', function (data) {
 				console.log(["getgameresponse ", data]);
 				if(data.error) {

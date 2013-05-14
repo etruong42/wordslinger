@@ -6,7 +6,7 @@ define([
 
 		initialize: function() {
 			this.$player = $("<input type='text class='invite-player' />");
-			this.$invite = $("<input type='button' class='invite-player' />");
+			this.$invite = $("<input type='button' class='invite-player btn' />");
 			this.$invite.click($.proxy(this.invite, this));
 			this.$el.append($player);
 			this.$el.append($invite);

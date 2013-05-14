@@ -3,21 +3,21 @@ define(['AppSocket'], function(AppSocket) {
 		tagName: "div",
 
 		initialize: function() {
-			this.on("game:error", this.alertError);
-			var that = this;
-			AppSocket.on('gamesresponse', function (data) {
-				console.log(["Games request details: ", data]);
+		this.on("game:error", this.alertError);
+		var that = this;
+		AppSocket.on('gamesresponse', function (data) {
+			console.log(["Games request details: ", data]);
 
-				if(data.error) {
-					alert(data.error);
-				}
-				else {
-					console.log('triggering games:retrieved');
-					that.trigger("games:retrieved", data);
-				}
-			});
-			AppSocket.on('newgameresponse', function (data) {
-				console.log(["New game request details: ", data]);
+			if(data.error) {
+				alert(data.error);
+			}
+			else {
+				console.log('triggering games:retrieved');
+				that.trigger("games:retrieved", data);
+			}
+		});
+		AppSocket.on('newgameresponse', function (data) {
+			console.log(["New game request details: ", data]);
 
 				if(data.error) {
 					// If there is an error, show the error messages
@@ -40,12 +40,12 @@ define(['AppSocket'], function(AppSocket) {
 		},
 
 		renderCreateGameButton: function() {
-			var $createGame = $("<div class='create-game'></div>");
-			var $playerInvite = $("<input type='text' />");
+			var $createGame = $("<form class='form-inline'></form>");
+			var $playerInvite = $("<input type='text' class='opponent input-medium search-query' placeholder=\"Opponent's email address\" />");
 			var $createGameButton =
-				$("<input type='button' value='New Game' />");
+				$("<input type='button' class='btn' value='New Game'/>");
 			$createGame
-				.append("Enter opponent's email address: ")
+				//.append("Enter opponent's email address: ")
 				.append($playerInvite)
 				.append($createGameButton);
 			$playerInvite.keypress(
@@ -78,7 +78,7 @@ define(['AppSocket'], function(AppSocket) {
 				var gameData = data[i];
 				var gameId = gameData._id;
 				var $gamedivbutton =
-					$("<input type='button' value='Play Game!' />");
+					$("<input type='button' class='btn' value='Play Game!' />");
 				$gamedivbutton.click(selectGame(gameId));
 				$gamediv
 					.append($gamedivbutton)

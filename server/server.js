@@ -67,7 +67,10 @@ iolistener.set('authorization',
 
 iolistener.sockets.on('connection', function (socket) {
 	if(socket.handshake.session.playerId) {
-		socket.emit('playerId', socket.handshake.session.playerId);
+		socket.emit('playerId', {
+			playerId: socket.handshake.session.playerId,
+			playerEmail: socket.handshake.session.playerEmail
+		});
 	}
 	socket.on('signup', function(data) {
 		wordslingerMongo.signup(
@@ -78,6 +81,7 @@ iolistener.sockets.on('connection', function (socket) {
 				if(!err) {
 					if(!val.error) {
 						socket.handshake.session.playerId = val._id.toString();
+						socket.handshake.session.playerEmail = val.email;
 						socket.handshake.session.save();
 						socket.emit('loginresponse', {_id: val._id});
 					}
@@ -95,6 +99,7 @@ iolistener.sockets.on('connection', function (socket) {
 			function(err, val) {
 				if(!err) {
 					socket.handshake.session.playerId = val._id.toString();
+					socket.handshake.session.playerEmail = val.email;
 					socket.handshake.session.save();
 					socket.emit('loginresponse', {_id: val._id});
 				} else {

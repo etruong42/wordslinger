@@ -8,7 +8,7 @@ define([],
 			this.$invitePlayer =
 				$("<input type='text' />");
 			this.$createGame =
-				$("<input type='button' value='New Game' />");
+				$("<input type='button' class='btn' value='New Game' />");
 			$createGame.click($.proxy(this.newGame, this));
 
 			this.$el
