@@ -10,10 +10,11 @@ define([
 		WordslingerGame, Board, BoardView, AppSocket){
 	var WordslingerRouter = Backbone.Router.extend({
 		routes: {
-			"player/:id": "showPlayer",
+			"player/:id": "showPlayer", //not yet implemented
 			"player": "showLoggedInPlayer",
 			"login" : "showLogin",
 			"game/:id": "showGame",
+			"logout" : "logout",
 			"": "showLoggedInPlayer"
 		},
 
@@ -39,6 +40,10 @@ define([
 					that.trigger("gamestatus:retrieved", data);
 				}
 			});
+		},
+
+		logout: function() {
+			console.log("logout");
 		},
 
 		showPlayer: function(id) {
